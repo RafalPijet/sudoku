@@ -1,0 +1,47 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+@include grid("col");
+
+.flex-center {
+  justify-content: center;
+}
+
+.flex-end {
+  justify-content: flex-end;
+}
+
+.flex-around {
+  justify-content: space-around;
+}
+
+.flex-between {
+  justify-content: space-between;
+}
+
+.flex-content-between {
+  align-content: space-between;
+}
+
+.flex-content-end {
+  align-content: flex-end;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.text-center {
+  text-align: center;
+}
