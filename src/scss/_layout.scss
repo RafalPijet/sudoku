@@ -12,7 +12,7 @@ body {
   flex-wrap: wrap;
 }
 
-@include grid("col");
+@include grid('col');
 
 .flex-center {
   justify-content: center;
@@ -44,4 +44,15 @@ body {
 
 .text-center {
   text-align: center;
+}
+
+.board {
+  width: 350px;
+  margin: 0 auto;
+
+  input {
+    font-size: 20px;
+    text-align: center;
+    border: 2px solid $violet;
+  }
 }
