@@ -31,6 +31,10 @@ class App extends React.Component{
         this.setState({board: mainBoard});
     }
 
+    takeBox(id) {
+        console.log(`BoxID --> ${id}`);
+    }
+
     checkSolution(solution) {
         const check = sudoku.solve(solution.join(''));
         check ? console.log(`Good :) --> ${check}`) : console.log(`Bad :( --> ${check}`);

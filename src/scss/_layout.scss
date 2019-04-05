@@ -47,12 +47,43 @@ body {
 }
 
 .board {
-  width: 350px;
+  width: 555px;
   margin: 0 auto;
+  border: 3px solid $violet;
 
-  input {
-    font-size: 20px;
-    text-align: center;
-    border: 2px solid $violet;
+  .assistant {
+    width: 58px;
+    height: 14px;
+    background-color: inherit;
+    border: none;
   }
+
+  .main {
+    width: 45px;
+    height: 40px;
+    font-size: 25px;
+    text-align: right;
+    border: none;
+    margin-left: 8px;
+    outline: none;
+    background-color: inherit;
+  }
+
 }
+
+[id*="c"], [id*="f"] {
+  border-bottom: 3px solid $violet;
+}
+
+[id*="3"], [id*="6"] {
+  border-right: 3px solid $violet;
+}
+
+[id*="a"], [id*="b"], [id*="d"], [id*="e"], [id*="g"], [id*="h"] {
+  border-bottom: 1px solid $grey-light;
+}
+
+[id*="1"], [id*="2"], [id*="4"], [id*="5"], [id*="7"], [id*="8"] {
+  border-right: 1px solid $grey-light;
+}
+

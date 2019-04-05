@@ -1,0 +1,17 @@
+.white {
+    width: 61px;
+    height: 61px;
+    background-color: #fff;
+}
+
+.grey {
+    width: 61px;
+    height: 61px;
+    background-color: #f5f6fa;
+}
+
+.yellow {
+    width: 61px;
+    height: 61px;
+    background-color: #e1b12c;
+}

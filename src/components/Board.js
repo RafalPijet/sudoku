@@ -5,7 +5,9 @@ class Board extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            numbers: this.props.randomNumbers
+            numbers: this.props.randomNumbers,
+            selectedBox: '',
+            isDefaultBackground: true
         }
     }
 
@@ -13,17 +15,27 @@ class Board extends React.Component {
         this.setState({
             numbers: nextProps.randomNumbers
         });
-        setTimeout(() => console.log(`In Board --> ${this.state.numbers};
-         length --> ${this.state.numbers.length}`), 100);
     }
 
     get numbers() {
         let counter = -1;
         return this.state.numbers.map(number =>
-            <Tile key={counter++} number={number} id={counter}
-            takeNumber={this.props.takeNumber}/>
+            <Tile key={counter++} number={number} id={counter} selectedBox={this.state.selectedBox}
+            takeNumber={this.props.takeNumber} selectBoxes={this.selectBoxes.bind(this)}
+            resetBackground={this.resetBackground.bind(this)} isDefaultBackground={this.state.isDefaultBackground}/>
         )
     }
+    
+    selectBoxes(id) {
+        this.setState({selectedBox: id, isDefaultBackground: false});
+    }
+    
+    resetBackground() {
+        console.log('Jest');
+        this.setState({isDefaultBackground: true, selectedBox: ''});
+    }
+
+
 
     render() {
         return (
