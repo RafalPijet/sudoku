@@ -3,7 +3,7 @@ import {hot} from 'react-hot-loader';
 import Board from '../components/Board';
 import sudoku from "sudoku-umd";
 
-class App extends React.Component{
+class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -42,14 +42,18 @@ class App extends React.Component{
 
     render() {
         return (
-            <div className="App">
-                <h1>Sudoku</h1>
-                <Board takeNumber={this.takeNumber.bind(this)} randomNumbers={this.state.board}/>
-                <div className="buttons">
+            <div className="App row col-12">
+                <div className="row col-3 flex-center">
+                    <h1>Sudoku</h1>
+                </div>
+                <div className="row col-6">
+                    <Board takeNumber={this.takeNumber.bind(this)} randomNumbers={this.state.board}/>
+                </div>
+                <div className="buttons row col-3 flex-center flex-content-end">
                     <button onClick={() => this.checkSolution(this.state.board)}>Check</button>
                     <button onClick={this.prepareBoard.bind(this)}>New Game</button>
                     <button>Solve</button>
-                    <button onClick={() =>this.setState({board: ''})}>Restart</button>
+                    <button onClick={() => this.setState({board: ''})}>Restart</button>
                 </div>
             </div>
         )

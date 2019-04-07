@@ -31,7 +31,6 @@ class Board extends React.Component {
     }
     
     resetBackground() {
-        console.log('Jest');
         this.setState({isDefaultBackground: true, selectedBox: ''});
     }
 
