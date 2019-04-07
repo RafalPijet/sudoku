@@ -107,7 +107,9 @@ class Tile extends React.Component {
 
     render() {
         return (
-            <div className={this.state.boxStyle} id={this.state.boxId}>
+            <div className={this.state.boxStyle} id={this.state.boxId}
+                 onMouseEnter={() => this.props.takeCoordinates(this.state.boxId, true)}
+                 onMouseLeave={() => this.props.takeCoordinates(this.state.boxId, false)}>
                 <input className="assistant" disabled={this.state.disabled}
                        onClick={() => this.props.selectBoxes(this.state.boxId)}
                        onBlur={this.props.resetBackground}/>

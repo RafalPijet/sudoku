@@ -1,0 +1,14 @@
+.coordinatesDontSelected {
+    color: #000;
+    font-size: 16px;
+    font-weight: normal;
+    text-shadow: none;
+}
+
+.coordinatesSelected {
+    color: #badc58;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 5px 5px 10px #000;
+    margin-top: 13px;
+}

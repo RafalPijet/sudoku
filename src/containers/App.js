@@ -1,14 +1,16 @@
 import React from 'react';
-import {hot} from 'react-hot-loader';
+import {hot} from 'react-hot-loader/index';
 import Board from '../components/Board';
-import sudoku from "sudoku-umd";
+import Coordinates from '../components/Coordinates';
+import sudoku from 'sudoku-umd';
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             initialBoard: '',
-            board: ''
+            board: '',
+            boxIdState: ''
         }
     }
 
@@ -31,8 +33,13 @@ class App extends React.Component {
         this.setState({board: mainBoard});
     }
 
-    takeBox(id) {
-        console.log(`BoxID --> ${id}`);
+    takeCoordinates(id, state) {
+        let boxState = {
+            id: id,
+            state: state
+        };
+        this.setState({boxIdState: boxState});
+        
     }
 
     checkSolution(solution) {
@@ -47,11 +54,38 @@ class App extends React.Component {
                     <h1>Sudoku</h1>
                 </div>
                 <div className="row col-6">
-                    <Board takeNumber={this.takeNumber.bind(this)} randomNumbers={this.state.board}/>
+                    <div className="row col-12">
+                        <div className="numbersLine row">
+                            <Coordinates name="1" boxIdState={this.state.boxIdState}/>
+                            <Coordinates name="2" boxIdState={this.state.boxIdState}/>
+                            <Coordinates name="3" boxIdState={this.state.boxIdState}/>
+                            <Coordinates name="4" boxIdState={this.state.boxIdState}/>
+                            <Coordinates name="5" boxIdState={this.state.boxIdState}/>
+                            <Coordinates name="6" boxIdState={this.state.boxIdState}/>
+                            <Coordinates name="7" boxIdState={this.state.boxIdState}/>
+                            <Coordinates name="8" boxIdState={this.state.boxIdState}/>
+                            <Coordinates name="9" boxIdState={this.state.boxIdState}/>
+                        </div>
+                    </div>
+                    <div className="lettersLine row flex-end">
+                        <Coordinates name="A" boxIdState={this.state.boxIdState}/>
+                        <Coordinates name="B" boxIdState={this.state.boxIdState}/>
+                        <Coordinates name="C" boxIdState={this.state.boxIdState}/>
+                        <Coordinates name="D" boxIdState={this.state.boxIdState}/>
+                        <Coordinates name="E" boxIdState={this.state.boxIdState}/>
+                        <Coordinates name="F" boxIdState={this.state.boxIdState}/>
+                        <Coordinates name="G" boxIdState={this.state.boxIdState}/>
+                        <Coordinates name="H" boxIdState={this.state.boxIdState}/>
+                        <Coordinates name="I" boxIdState={this.state.boxIdState}/>
+                    </div>
+                    <Board takeNumber={this.takeNumber.bind(this)} randomNumbers={this.state.board}
+                           takeCoordinates={this.takeCoordinates.bind(this)}/>
                 </div>
                 <div className="buttons row col-3 flex-center flex-content-end">
                     <button onClick={() => this.checkSolution(this.state.board)}>Check</button>
                     <button onClick={this.prepareBoard.bind(this)}>New Game</button>
+                    <button>Load Game</button>
+                    <button>Save Game</button>
                     <button>Solve</button>
                     <button onClick={() => this.setState({board: ''})}>Restart</button>
                 </div>

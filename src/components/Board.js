@@ -22,7 +22,8 @@ class Board extends React.Component {
         return this.state.numbers.map(number =>
             <Tile key={counter++} number={number} id={counter} selectedBox={this.state.selectedBox}
             takeNumber={this.props.takeNumber} selectBoxes={this.selectBoxes.bind(this)}
-            resetBackground={this.resetBackground.bind(this)} isDefaultBackground={this.state.isDefaultBackground}/>
+            resetBackground={this.resetBackground.bind(this)} isDefaultBackground={this.state.isDefaultBackground}
+                  takeCoordinates={this.props.takeCoordinates}/>
         )
     }
     
