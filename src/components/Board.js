@@ -15,6 +15,7 @@ class Board extends React.Component {
         this.setState({
             numbers: nextProps.randomNumbers
         });
+        // setTimeout(() => console.log(`Im in board --> ${this.state.numbers}`), 10);
     }
 
     get numbers() {
@@ -22,8 +23,8 @@ class Board extends React.Component {
         return this.state.numbers.map(number =>
             <Tile key={counter++} number={number} id={counter} selectedBox={this.state.selectedBox}
             takeNumber={this.props.takeNumber} selectBoxes={this.selectBoxes.bind(this)}
-            resetBackground={this.resetBackground.bind(this)} isDefaultBackground={this.state.isDefaultBackground}
-                  takeCoordinates={this.props.takeCoordinates}/>
+            resetBackground={this.resetBackground.bind(this)} isDefaultBackground={this.state.isDefaultBackground} 
+            isGame={this.props.isGame} takeCoordinates={this.props.takeCoordinates}/>
         )
     }
     

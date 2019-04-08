@@ -2,35 +2,49 @@ import React from 'react';
 import {hot} from 'react-hot-loader/index';
 import Board from '../components/Board';
 import Coordinates from '../components/Coordinates';
+import DifficultyModal from '../components/DifficultyLevelModal';
 import sudoku from 'sudoku-umd';
+import {ToastContainer, toast, cssTransition} from "react-toastify";
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             initialBoard: '',
-            board: '',
-            boxIdState: ''
+            board: [],
+            boxIdState: '',
+            isGame: false,
+            level: ''
         }
     }
 
     componentDidMount() {
-        this.prepareBoard();
+        this.prepareBoard("begin");
     }
 
-    prepareBoard() {
-        const random = sudoku.generate("easy");
-        const result = Array.from(random);
+    prepareBoard(level) {
+        console.log(`WOWO`);
+        if (level === 'begin') {
+            const begin = [];
 
-        this.setState({
-            board: result
-        });
+            for (let i = 0; i < 81; i++) {
+                begin.push('.')
+            }
+            this.setState({board: begin})
+        } else {
+            const random = sudoku.generate(level);
+            this.setState({
+                board: Array.from(random),
+                initialBoard: Array.from(random),
+                isGame: true,
+                level: level
+            });
+        }
+        setTimeout(() => this.setState({isGame: false}), 10);
     }
 
     takeNumber(id, value) {
-        const mainBoard = this.state.board;
-        mainBoard.splice(id, 1, value);
-        this.setState({board: mainBoard});
+        this.state.board.splice(id, 1, value);
     }
 
     takeCoordinates(id, state) {
@@ -39,7 +53,15 @@ class App extends React.Component {
             state: state
         };
         this.setState({boxIdState: boxState});
-        
+
+    }
+
+    restartGame() {
+        setTimeout(() => this.setState({
+            board: this.state.initialBoard,
+            isGame: true
+        }), 10);
+        setTimeout(() => this.setState({isGame: false}), 10);
     }
 
     checkSolution(solution) {
@@ -50,8 +72,9 @@ class App extends React.Component {
     render() {
         return (
             <div className="App row col-12">
-                <div className="row col-3 flex-center">
+                <div className="title row col-3 flex-center flex-content-start">
                     <h1>Sudoku</h1>
+                    <h3>{this.state.level}</h3>
                 </div>
                 <div className="row col-6">
                     <div className="row col-12">
@@ -79,16 +102,20 @@ class App extends React.Component {
                         <Coordinates name="I" boxIdState={this.state.boxIdState}/>
                     </div>
                     <Board takeNumber={this.takeNumber.bind(this)} randomNumbers={this.state.board}
-                           takeCoordinates={this.takeCoordinates.bind(this)}/>
+                           takeCoordinates={this.takeCoordinates.bind(this)} isGame={this.state.isGame}/>
                 </div>
                 <div className="buttons row col-3 flex-center flex-content-end">
                     <button onClick={() => this.checkSolution(this.state.board)}>Check</button>
-                    <button onClick={this.prepareBoard.bind(this)}>New Game</button>
+                    <button onClick={() => toast.success(<DifficultyModal title="Select difficulty level"
+                                                                          prepareBoard={this.prepareBoard.bind(this)}/>, {autoClose: false})}>New
+                        Game
+                    </button>
                     <button>Load Game</button>
                     <button>Save Game</button>
                     <button>Solve</button>
-                    <button onClick={() => this.setState({board: ''})}>Restart</button>
+                    <button onClick={() => this.restartGame()}>Restart</button>
                 </div>
+                <ToastContainer/>
             </div>
         )
     }

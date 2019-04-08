@@ -39,11 +39,15 @@ class Tile extends React.Component {
     }
 
     componentDidMount() {
-        this.setAccess();
         this.defaultBackground();
     }
 
     componentWillReceiveProps(nextProps) {
+
+        if (nextProps.number && nextProps.isGame) {
+            this.setState({value: nextProps.number});
+            setTimeout(() => this.setAccess(), 10);
+        }
 
         if (nextProps.selectedBox) {
             this.selectFields(nextProps.selectedBox);
