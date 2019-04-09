@@ -27,13 +27,16 @@ class Board extends React.Component {
             isGame={this.props.isGame} takeCoordinates={this.props.takeCoordinates}/>
         )
     }
-    
+
     selectBoxes(id) {
         this.setState({selectedBox: id, isDefaultBackground: false});
+        setTimeout(() => this.props.takeBackground(this.state.isDefaultBackground, this.state.selectedBox), 1);
     }
-    
+
     resetBackground() {
-        this.setState({isDefaultBackground: true, selectedBox: ''});
+        this.setState({isDefaultBackground: true});
+        setTimeout(() => this.props.takeBackground(this.state.isDefaultBackground, this.state.selectedBox), 1);
+        setTimeout(() => this.setState({selectedBox: ''}), 5);
     }
 
 

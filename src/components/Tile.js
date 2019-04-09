@@ -105,8 +105,8 @@ class Tile extends React.Component {
 
     handleChange(event) {
         this.setState({value: event.target.value});
-        setTimeout(() => this.props.takeNumber(this.state.id, this.state.value), 100);
-        this.props.selectBoxes(this.state.boxId);
+        setTimeout(() => this.props.takeNumber(this.state.id, this.state.value), 1);
+        setTimeout(() => this.props.selectBoxes(this.state.boxId), 10);
     }
 
     render() {
