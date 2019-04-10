@@ -17,7 +17,10 @@ class App extends React.Component {
             isGame: false,
             level: '',
             turns: [],
-            value: ''
+            value: '',
+            id: '',
+            selectedBox: '',
+            turnCounter: 0
         }
     }
 
@@ -48,21 +51,26 @@ class App extends React.Component {
 
     takeNumber(id, value) {
         this.state.board.splice(id, 1, value);
-        this.setState({value: value});
+        this.setState({value: value, id: id});
     }
     
     takeBackground(isDefaultBackground, selectedBox) {
+        let letter = selectedBox.substring(0, 1).toUpperCase();
+        let number = selectedBox.substring(2, 3);
+        let coordinates = letter + " - " + number;
+        this.setState({selectedBox: coordinates});
 
         if (isDefaultBackground) {
-            let letter = selectedBox.substring(0, 1).toUpperCase();
-            let number = selectedBox.substring(2, 3);
+            this.state.turnCounter++;
             let turn = {
-                selectedBox: letter + " - " + number,
-                value: this.state.value
+                turnId: this.state.turnCounter,
+                selectedBox: coordinates,
+                value: this.state.value,
+                id: this.state.id
             };
-            this.state.turns.push(turn);
+            this.state.turns.unshift(turn);
             console.log("WOW");
-            setTimeout(() => console.log(this.state.turns), 10);
+            // setTimeout(() => console.log(this.state.turns), 10);
         }
     }
 
@@ -97,9 +105,23 @@ class App extends React.Component {
         return (
             <div className="App row col-12">
                 <div className="title row col-3 flex-center flex-content-start">
-                    <h1>Sudoku</h1>
+                    <h1>SUDOKU</h1>
                     <h3 className="col-12">{this.state.level}</h3>
+                    <div className="col-10 row">
+                        <h4 className="col-4">Turn</h4>
+                        <h4 className="col-4">Coordinates</h4>
+                        <h4 className="col-4">Value</h4>
+                    </div>
+                    <div className="col-10 row">
+                        <h4 className="show col-4">{this.state.turnCounter + 1}</h4>
+                        <h4 className="show col-4">{this.state.selectedBox}</h4>
+                        <h4 className="show col-4">{this.state.value}</h4>
+                    </div>
                     <Turns turns={this.state.turns}/>
+                    <div className="buttons row col-10 flex-between">
+                        <button className="small">Undo</button>
+                        <button className="small">Redo</button>
+                    </div>
                 </div>
                 <div className="row col-6">
                     <div className="row col-12">

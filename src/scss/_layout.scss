@@ -71,17 +71,22 @@ body {
       height: 30px;
     }
 
-    .turns-list {
-      margin-top: 10px;
-      //border: 2px solid red;
-      height: 200px;
+    h4 {
+      color: $white;
+      margin: 0;
+      text-align: center;
+    }
+
+    .show {
+      margin: 20px 0;
+      color: $green;
+      text-align: center;
+    }
+
+    table {
+      height: 302px;
       overflow: scroll;
 
-      thead {
-        color: $white;
-        line-height: 40px;
-
-      }
 
       tbody {
         tr {
@@ -90,11 +95,6 @@ body {
 
           td {
             text-align: center;
-          }
-
-          &:last-child {
-            color: $green;
-            text-shadow: 3px 3px 5px $black;
           }
         }
       }
@@ -193,6 +193,13 @@ body {
       box-shadow: none;
     }
   }
+
+  .small {
+    width: 100px;
+    margin: 20px 0 0 0;
+    background-color: $grey-title !important;
+    color: $white;
+  }
 }
 
 .modal-select-difficulty {
@@ -202,6 +209,7 @@ body {
     width: 80px;
     height: 25px;
     background-color: $grey-title;
+    color: $white;
     border-radius: 3px;
     border: none;
     outline: none;
