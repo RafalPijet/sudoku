@@ -44,7 +44,7 @@ class Tile extends React.Component {
 
     componentWillReceiveProps(nextProps) {
 
-        if (nextProps.number && nextProps.isGame) {
+        if (nextProps && nextProps.isGame) {
             this.setState({value: nextProps.number});
             setTimeout(() => this.setAccess(), 10);
         }
@@ -59,7 +59,7 @@ class Tile extends React.Component {
     }
 
     setAccess() {
-        this.state.value === "." ? this.setState({disabled: false}) :
+        this.state.value === "" ? this.setState({disabled: false}) :
             this.setState({disabled: true});
     }
 
@@ -104,9 +104,13 @@ class Tile extends React.Component {
     }
 
     handleChange(event) {
-        this.setState({value: event.target.value});
-        setTimeout(() => this.props.takeNumber(this.state.id, this.state.value), 1);
-        setTimeout(() => this.props.selectBoxes(this.state.boxId), 10);
+
+        if (event.target.value >= 1 && event.target.value <= 9) {
+            this.setState({value: event.target.value});
+            setTimeout(() => this.props.takeNumber(this.state.id, this.state.value), 1);
+            setTimeout(() => this.props.selectBoxes(this.state.boxId), 10);
+        }
+
     }
 
     render() {
@@ -115,10 +119,10 @@ class Tile extends React.Component {
                  onMouseEnter={() => this.props.takeCoordinates(this.state.boxId, true)}
                  onMouseLeave={() => this.props.takeCoordinates(this.state.boxId, false)}>
                 <input className="assistant" disabled={this.state.disabled}
-                       onClick={() => this.props.selectBoxes(this.state.boxId)}
-                       onBlur={this.props.resetBackground}/>
+                       onClick={() => this.props.selectBoxesFromAssisntant(this.state.boxId)}
+                       onBlur={this.props.resetBackgroundFromAssistant}/>
                 <input className="main" type="number" min="1" max="9" onBlur={this.props.resetBackground}
-                       id={this.state.id} value={this.state.value} onClick={() => this.props.selectBoxes(this.state.boxId)}
+                       id={this.state.id} value={this.state.value} onClick={this.handleChange}
                        onChange={this.handleChange} disabled={this.state.disabled}/>
             </div>
         )

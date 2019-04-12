@@ -151,6 +151,7 @@ body {
 }
 
 .buttons {
+  margin-bottom: 40px;
 
   button {
     font-family: $font-roboto-medium;
@@ -185,20 +186,12 @@ body {
     }
 
     &:last-child {
-      margin-bottom: 40px;
       background-color: $red-light;
     }
 
     &:active {
       box-shadow: none;
     }
-  }
-
-  .small {
-    width: 100px;
-    margin: 20px 0 0 0;
-    background-color: $grey-title !important;
-    color: $white;
   }
 }
 
@@ -242,7 +235,27 @@ body {
       }
     }
   }
+}
 
+.modal-solution {
+  button {
+    margin: 5px 0;
+    width: 280px;
+    height: 25px;
+    background-color: $grey-title;
+    color: $white;
+    border-radius: 3px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: $font-size-13;
+    box-shadow: 5px 5px 10px $black;
+    transition-duration: .2s;
+
+    &:active {
+      box-shadow: none;
+    }
+  }
 }
 
 [id*="c"], [id*="f"] {

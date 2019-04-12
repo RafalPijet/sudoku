@@ -15,7 +15,6 @@ class Board extends React.Component {
         this.setState({
             numbers: nextProps.randomNumbers
         });
-        // setTimeout(() => console.log(`Im in board --> ${this.state.numbers}`), 10);
     }
 
     get numbers() {
@@ -24,19 +23,29 @@ class Board extends React.Component {
             <Tile key={counter++} number={number} id={counter} selectedBox={this.state.selectedBox}
             takeNumber={this.props.takeNumber} selectBoxes={this.selectBoxes.bind(this)}
             resetBackground={this.resetBackground.bind(this)} isDefaultBackground={this.state.isDefaultBackground} 
-            isGame={this.props.isGame} takeCoordinates={this.props.takeCoordinates}/>
+            isGame={this.props.isGame} takeCoordinates={this.props.takeCoordinates} 
+                  resetBackgroundFromAssistant={this.resetBackgroundFromAssistant.bind(this)}
+                  selectBoxesFromAssisntant={this.selectBoxesFromAssisntant.bind(this)}/>
         )
     }
 
     selectBoxes(id) {
         this.setState({selectedBox: id, isDefaultBackground: false});
-        setTimeout(() => this.props.takeBackground(this.state.isDefaultBackground, this.state.selectedBox), 1);
+        setTimeout(() => this.props.setTurn(this.state.isDefaultBackground, this.state.selectedBox), 1);
     }
 
     resetBackground() {
         this.setState({isDefaultBackground: true});
-        setTimeout(() => this.props.takeBackground(this.state.isDefaultBackground, this.state.selectedBox), 1);
+        setTimeout(() => this.props.setTurn(this.state.isDefaultBackground, this.state.selectedBox), 1);
         setTimeout(() => this.setState({selectedBox: ''}), 5);
+    }
+    
+    selectBoxesFromAssisntant(id) {
+        this.setState({selectedBox: id, isDefaultBackground: false});
+    }
+    
+    resetBackgroundFromAssistant() {
+        this.setState({isDefaultBackground: true, selctedBox: ''});
     }
 
 
