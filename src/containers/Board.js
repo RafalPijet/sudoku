@@ -25,8 +25,13 @@ class Board extends React.Component {
             resetBackground={this.resetBackground.bind(this)} isDefaultBackground={this.state.isDefaultBackground} 
             isGame={this.props.isGame} takeCoordinates={this.props.takeCoordinates} 
                   resetBackgroundFromAssistant={this.resetBackgroundFromAssistant.bind(this)}
-                  selectBoxesFromAssisntant={this.selectBoxesFromAssisntant.bind(this)}/>
+                  selectBoxesFromAssisntant={this.selectBoxesFromAssisntant.bind(this)}
+                  pushFalseBackground={this.pushFalseBackground.bind(this)}/>
         )
+    }
+    
+    pushFalseBackground(id) {
+        this.setState({isDefaultBackground: false, selectedBox: id});
     }
 
     selectBoxes(id) {

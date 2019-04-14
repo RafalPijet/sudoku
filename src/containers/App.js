@@ -5,9 +5,10 @@ import Coordinates from '../components/Coordinates';
 import Turns from '../containers/Turns';
 import DifficultyModal from '../components/DifficultyLevelModal';
 import SolveModal from '../components/SolveModal';
+import FilesModal from '../components/FilesModal';
 import ButtonStyle from '../components/Buttons.css';
 import sudoku from 'sudoku-umd';
-import {ToastContainer, toast, cssTransition} from "react-toastify";
+import {ToastContainer, toast} from "react-toastify";
 
 class App extends React.Component {
     constructor(props) {
@@ -82,9 +83,9 @@ class App extends React.Component {
         let number = selectedBox.substring(2, 3);
         let coordinates = letter + " - " + number;
         coordinates.length === 5 ? this.setState({selectedBox: coordinates}) : [];
-
-        if (isDefaultBackground && this.state.value.length ||
-            isDefaultBackground && this.state.selectedBox.length === 5) {
+        console.log(`${isDefaultBackground};${this.state.value.length};${this.state.selectedBox.length}`)
+        if (isDefaultBackground && this.state.value.length &&
+            this.state.selectedBox.length === 5) {
             this.state.turnCounter++;
             let turn = {
                 turnId: this.state.turnCounter,
@@ -129,8 +130,7 @@ class App extends React.Component {
             this.state.board[item.id] = item.value;
             this.setState({board: this.state.board, isGame: true});
             setTimeout(() => this.setState({isGame: false}), 10);
-        } else {
-            this.buttonsHandling(true,false);
+            setTimeout(() => !this.state.turnsCash.length ? this.buttonsHandling(true,false) : [])
         }
     }
 
@@ -186,6 +186,10 @@ class App extends React.Component {
         isReally ? this.setState({disabledButtons: true}) : this.setState({disabledButtons: false});
     }
 
+    loadGame(data) {
+        console.log(`loadGame --> ${data}`);
+    }
+
     toastRestartGame = () => toast('You restarted the game 😎',
 {type: toast.TYPE.INFO, autoClose: 5000, onOpen: () => this.disableButtons(true),
     onClose: () => this.disableButtons(false)});
@@ -193,7 +197,7 @@ class App extends React.Component {
     correctTactics = () => toast('Your tactics are CORRECT 😀',
         {type: toast.TYPE.SUCCESS, autoClose: 5000, onOpen: () => this.disableButtons(true),
         onClose: () => this.disableButtons(false)});
-    notCorrectTactics = () => toast('Your tactics are NOT COORECT 😲',
+    notCorrectTactics = () => toast('Your tactics are NOT CORRECT 😲',
         {type: toast.TYPE.ERROR, autoClose: 5000, onOpen: () => this.disableButtons(true),
             onClose: () => this.disableButtons(false)});
 
@@ -258,7 +262,9 @@ class App extends React.Component {
                         {autoClose: false, onOpen: () => this.disableButtons(true),
                             onClose: () => this.disableButtons(false)})}>New Game
                     </button>
-                    <button disabled={this.state.disabledButtons}>Load Game</button>
+                    <button disabled={this.state.disabledButtons} onClick={() => 
+                        toast.info(<FilesModal title="Load the game..." loadGame={this.loadGame.bind(this)}/>,
+                        {autoClose: false})}>Load Game</button>
                     <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}>Save Game</button>
                     <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}
                             onClick={() => this.checkSolution(this.state.board, true)}>Solve</button>
