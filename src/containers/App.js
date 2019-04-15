@@ -5,7 +5,6 @@ import Coordinates from '../components/Coordinates';
 import Turns from '../containers/Turns';
 import DifficultyModal from '../components/DifficultyLevelModal';
 import SolveModal from '../components/SolveModal';
-import FilesModal from '../components/FilesModal';
 import ButtonStyle from '../components/Buttons.css';
 import sudoku from 'sudoku-umd';
 import {ToastContainer, toast} from "react-toastify";
@@ -30,7 +29,13 @@ class App extends React.Component {
             id: '',
             selectedBox: '',
             turnCounter: 0,
-            hideElements: true
+            hideElements: true,
+            running: false,
+            times: {
+                hours: 0,
+                minutes: 0,
+                seconds: 0
+            }
         }
     }
 
@@ -62,12 +67,28 @@ class App extends React.Component {
             this.setState({
                 board: resultForBoard,
                 initialBoard: resultForInitialBoard,
+                boxIdState: '',
                 isGame: true,
                 level: level,
                 turns: [],
                 turnsCash: [],
-                hideElements: false,
+                disabledButtons: false,
+                disabledUndo: true,
+                disabledRedo: true,
+                undoStyle: ButtonStyle.smallButtonDisabled,
+                redoStyle: ButtonStyle.smallButtonDisabled,
+                value: '',
+                id: '',
+                selectedBox: '',
+                turnCounter: 0,
+                hideElements: false
             });
+            const resetTime = () => new Promise((resolve => resolve(this.resetTime())));
+            resetTime()
+                .then(() => this.startTime());
+
+            // this.resetTime();
+            // setTimeout(() => this.startTime(), 1);
         }
         this.buttonsHandling(false, false);
         setTimeout(() => this.setState({isGame: false}), 10);
@@ -77,13 +98,13 @@ class App extends React.Component {
         this.state.board.splice(id, 1, value);
         this.setState({value: value, id: id});
     }
-    
+
     setTurn(isDefaultBackground, selectedBox) {
         let letter = selectedBox.substring(0, 1).toUpperCase();
         let number = selectedBox.substring(2, 3);
         let coordinates = letter + " - " + number;
         coordinates.length === 5 ? this.setState({selectedBox: coordinates}) : [];
-        console.log(`${isDefaultBackground};${this.state.value.length};${this.state.selectedBox.length}`)
+
         if (isDefaultBackground && this.state.value.length &&
             this.state.selectedBox.length === 5) {
             this.state.turnCounter++;
@@ -130,7 +151,7 @@ class App extends React.Component {
             this.state.board[item.id] = item.value;
             this.setState({board: this.state.board, isGame: true});
             setTimeout(() => this.setState({isGame: false}), 10);
-            setTimeout(() => !this.state.turnsCash.length ? this.buttonsHandling(true,false) : [])
+            setTimeout(() => !this.state.turnsCash.length ? this.buttonsHandling(true, false) : [])
         }
     }
 
@@ -171,12 +192,25 @@ class App extends React.Component {
                 this.state.board[i] === '' ? counter++ : [];
             }
             counter === 0 ?
-             toast.success(<SolveModal title="⭐⭐⭐YOU ARE WINNER⭐⭐⭐" info="👌GAME OVER👌"/>,
-                {autoClose: false, onOpen: () => this.disableButtons(true),
-                    onClose: () => this.disableButtons(false)}) :
-                toast.warn(<SolveModal title="⚠️YOUR solution is NOT FINISHED⚠️" info="Are you sure, you want to end the game?"/>,
-                    {autoClose: false, onOpen: () => this.disableButtons(true),
-                        onClose: () => this.disableButtons(false)})
+                toast.success(<SolveModal title="⭐⭐⭐YOU ARE WINNER⭐⭐⭐" info="👌GAME OVER👌"/>,
+                    {
+                        autoClose: false,onOpen: () => {
+                            this.disableButtons(true);
+                            this.stopTime();},
+                        onClose: () => {
+                            this.disableButtons(false);
+                            this.startTime();
+                        }}) :
+                toast.warn(<SolveModal title="⚠️YOUR solution is NOT FINISHED⚠️"
+                                       info="Are you sure, you want to end the game?"/>,
+                    {
+                        autoClose: false, onOpen: () => {
+                            this.disableButtons(true);
+                            this.stopTime();},
+                        onClose: () => {
+                            this.disableButtons(false);
+                            this.startTime();
+                        }})
         } else {
             check ? this.correctTactics() : this.notCorrectTactics();
         }
@@ -186,27 +220,176 @@ class App extends React.Component {
         isReally ? this.setState({disabledButtons: true}) : this.setState({disabledButtons: false});
     }
 
-    loadGame(data) {
-        console.log(`loadGame --> ${data}`);
+    loadGame() {
+        let board = localStorage.getItem("state");
+        let result = JSON.parse(board);
+        this.setState({
+            initialBoard: result.initialBoard,
+            board: result.board,
+            boxIdState: board.boxIdState,
+            isGame: true,
+            level: result.level,
+            turns: result.turns,
+            turnsCash: result.turnsCash,
+            disabledButtons: result.disabledButtons,
+            disabledUndo: result.disabledUndo,
+            disabledRedo: result.disabledRedo,
+            undoStyle: result.undoStyle,
+            redoStyle: result.redoStyle,
+            value: result.value,
+            id: result.id,
+            selectedBox: result.selectedBox,
+            turnCounter: result.turnCounter,
+            hideElements: result.hideElements,
+            running: result.running,
+            times: result.times
+        });
+        setTimeout(() => this.setState({isGame: false}));
+        this.toastLoadGame();
+        clearInterval(this.interval);
+        this.interval = setInterval(() => {
+
+            if (this.state.running) {
+                this.setState({
+                    times: this.calculate(this.state.times)
+                })
+            }
+        }, 1000)
     }
 
+    saveGame() {
+        localStorage.setItem("state", JSON.stringify(this.state));
+        this.toastSaveGame();
+    }
+
+    interval = null;
+
+    startTime() {
+        console.log("startTime");
+        if (!this.state.running) {
+            this.setState({
+                running: true
+            });
+            this.interval = setInterval(() => {
+
+                if (this.state.running) {
+                    this.setState({
+                        times: this.calculate(this.state.times)
+                    })
+                }
+            }, 1000)
+        }
+    }
+
+    stopTime() {
+        this.setState({
+            running: false
+        });
+        clearInterval(this.interval);
+    }
+
+    resetTime() {
+        console.log("resetTime");
+        this.setState({
+            running: false,
+            times: {
+                hours: 0,
+                minutes: 0,
+                seconds: 0
+            }
+        });
+        clearInterval(this.interval);
+    }
+
+    calculate(times) {
+        let result = times;
+        result.seconds += 1;
+
+        if (result.seconds >= 60) {
+            result.minutes += 1;
+            result.seconds = 0;
+        }
+
+        if (result.minutes >= 60) {
+            result.hours += 1;
+            result.minutes = 0;
+        }
+        return result;
+    }
+
+    pad0(value) {
+        let result = value.toString();
+
+        if (result.length < 2) {
+            result = `0${result}`;
+        }
+        return result;
+    }
+
+    format() {
+        return `${this.pad0(this.state.times.hours)}:${this.pad0(this.state.times.minutes)}:${this.pad0(this.state.times.seconds)}`;
+    }
+
+    toastSaveGame = () => toast('You saved game 🚀', {
+        type: toast.TYPE.SUCCESS, autoClose: 5000,
+        onOpen: () => {
+            this.disableButtons(true);
+            this.stopTime();},
+        onClose: () => {
+            this.disableButtons(false);
+            this.startTime();}
+    });
+
+    toastLoadGame = () => toast('You loaded game 🚀', {
+        type: toast.TYPE.SUCCESS, autoClose: 5000,
+        onOpen: () => {
+            this.disableButtons(true);
+            this.stopTime();},
+        onClose: () => {
+            this.disableButtons(false);
+            this.startTime();}
+    });
+
     toastRestartGame = () => toast('You restarted the game 😎',
-{type: toast.TYPE.INFO, autoClose: 5000, onOpen: () => this.disableButtons(true),
-    onClose: () => this.disableButtons(false)});
+        {
+            type: toast.TYPE.INFO, autoClose: 5000,
+            onOpen: () => {
+                this.disableButtons(true);
+                this.resetTime();},
+            onClose: () => {
+                this.disableButtons(false);
+                this.startTime();
+            }});
 
     correctTactics = () => toast('Your tactics are CORRECT 😀',
-        {type: toast.TYPE.SUCCESS, autoClose: 5000, onOpen: () => this.disableButtons(true),
-        onClose: () => this.disableButtons(false)});
+        {
+            type: toast.TYPE.SUCCESS, autoClose: 5000,
+            onOpen: () => {
+                this.disableButtons(true);
+                this.stopTime();},
+            onClose: () => {
+                this.disableButtons(false);
+                this.startTime();
+            }});
     notCorrectTactics = () => toast('Your tactics are NOT CORRECT 😲',
-        {type: toast.TYPE.ERROR, autoClose: 5000, onOpen: () => this.disableButtons(true),
-            onClose: () => this.disableButtons(false)});
+        {
+            type: toast.TYPE.ERROR, autoClose: 5000,
+            onOpen: () => {
+                this.disableButtons(true);
+                this.stopTime();},
+            onClose: () => {
+                this.disableButtons(false);
+                this.startTime();
+            }});
 
     render() {
         return (
             <div className="App row col-12">
                 <div className="title row col-3 flex-center flex-content-start">
                     <h1>SUDOKU</h1>
-                    <h3 className="col-12">{this.state.level}</h3>
+                    <h3 className="col-12" hidden={this.state.hideElements}>
+                        {`${this.state.level} (${this.format(this.state.times)})`}
+                    </h3>
                     <div className="col-10 row">
                         <h4 className="col-4" hidden={this.state.hideElements}>Turn</h4>
                         <h4 className="col-4" hidden={this.state.hideElements}>Coordinates</h4>
@@ -220,9 +403,11 @@ class App extends React.Component {
                     <Turns turns={this.state.turns} hidden={this.state.hideElements}/>
                     <div className="buttons row col-10 flex-between">
                         <button className={this.state.undoStyle} hidden={this.state.hideElements}
-                                disabled={this.state.disabledUndo} onClick={this.undoHandling.bind(this)}>Undo</button>
+                                disabled={this.state.disabledUndo} onClick={this.undoHandling.bind(this)}>Undo
+                        </button>
                         <button className={this.state.redoStyle} hidden={this.state.hideElements}
-                                disabled={this.state.disabledRedo} onClick={this.redoHandling.bind(this)}>Redo</button>
+                                disabled={this.state.disabledRedo} onClick={this.redoHandling.bind(this)}>Redo
+                        </button>
                     </div>
                 </div>
                 <div className="row col-6">
@@ -256,20 +441,25 @@ class App extends React.Component {
                 </div>
                 <div className="buttons row col-3 flex-center flex-content-end">
                     <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}
-                            onClick={() => this.checkSolution(this.state.board, false)}>Check</button>
-                    <button disabled={this.state.disabledButtons} onClick={() => toast.success(<DifficultyModal
-                        title="Select difficulty level" prepareBoard={this.prepareBoard.bind(this)}/>,
-                        {autoClose: false, onOpen: () => this.disableButtons(true),
-                            onClose: () => this.disableButtons(false)})}>New Game
+                            onClick={() => this.checkSolution(this.state.board, false)}>Check
                     </button>
-                    <button disabled={this.state.disabledButtons} onClick={() => 
-                        toast.info(<FilesModal title="Load the game..." loadGame={this.loadGame.bind(this)}/>,
-                        {autoClose: false})}>Load Game</button>
-                    <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}>Save Game</button>
+                    <button disabled={this.state.disabledButtons} onClick={() => toast.success(<DifficultyModal
+                            title="Select difficulty level" prepareBoard={this.prepareBoard.bind(this)}/>,
+                        {
+                            autoClose: false, onOpen: () => this.disableButtons(true),
+                            onClose: () => this.disableButtons(false)
+                        })}>New Game
+                    </button>
+                    <button disabled={this.state.disabledButtons} onClick={() => this.loadGame()}>Load Game</button>
                     <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}
-                            onClick={() => this.checkSolution(this.state.board, true)}>Solve</button>
+                            onClick={() => this.saveGame()}>Save Game
+                    </button>
                     <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}
-                            onClick={() => this.restartGame()}>Restart</button>
+                            onClick={() => this.checkSolution(this.state.board, true)}>Solve
+                    </button>
+                    <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}
+                            onClick={() => this.restartGame()}>Restart
+                    </button>
                 </div>
                 <ToastContainer/>
             </div>
