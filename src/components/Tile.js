@@ -45,8 +45,11 @@ class Tile extends React.Component {
     componentWillReceiveProps(nextProps) {
 
         if (nextProps && nextProps.isGame) {
-            this.setState({value: nextProps.number});
-            setTimeout(() => this.setAccess(), 10);
+            const setState = () => new Promise(resolve => resolve(
+                this.setState({value: nextProps.number})
+            ));
+            setState()
+                .then(() => this.setAccess());
         }
 
         if (nextProps.selectedBox) {
@@ -90,9 +93,11 @@ class Tile extends React.Component {
                     this.state.boxId.includes("9")
                 )) {
             this.setState({boxStyle: style.grey})
-        } else {this.setState({boxStyle: style.white});}
+        } else {
+            this.setState({boxStyle: style.white});
+        }
     }
-    
+
     selectFields(boxId) {
         let letter = boxId.substring(0, 1);
         let number = boxId.substring(2, 3);
@@ -104,11 +109,14 @@ class Tile extends React.Component {
     }
 
     handleChange(event) {
+        const setState = () => new Promise(resolve => resolve(
+            this.setState({value: event.target.value})
+        ));
 
         if (event.target.value >= 1 && event.target.value <= 9) {
-            this.setState({value: event.target.value});
-            setTimeout(() => this.props.takeNumber(this.state.id, this.state.value), 1);
-            setTimeout(() => this.props.selectBoxes(this.state.boxId), 10);
+            setState()
+                .then(() => this.props.takeNumber(this.state.id, this.state.value))
+                .then(() => this.props.selectBoxes(this.state.boxId));
         }
 
     }
@@ -122,7 +130,8 @@ class Tile extends React.Component {
                        onClick={() => this.props.selectBoxesFromAssisntant(this.state.boxId)}
                        onBlur={this.props.resetBackgroundFromAssistant}/>
                 <input className="main" type="number" min="1" max="9" onBlur={this.props.resetBackground}
-                       id={this.state.id} value={this.state.value} onClick={this.handleChange}
+                       id={this.state.id} value={this.state.value} onClick={() =>
+                        this.props.pushFalseBackground(this.state.boxId)}
                        onChange={this.handleChange} disabled={this.state.disabled}/>
             </div>
         )
