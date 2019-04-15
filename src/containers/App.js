@@ -64,34 +64,32 @@ class App extends React.Component {
                 item.includes('.') ? resultForInitialBoard.push(item.replace('.', ''))
                     : resultForInitialBoard.push(item)
             );
-            this.setState({
-                board: resultForBoard,
-                initialBoard: resultForInitialBoard,
-                boxIdState: '',
-                isGame: true,
-                level: level,
-                turns: [],
-                turnsCash: [],
-                disabledButtons: false,
-                disabledUndo: true,
-                disabledRedo: true,
-                undoStyle: ButtonStyle.smallButtonDisabled,
-                redoStyle: ButtonStyle.smallButtonDisabled,
-                value: '',
-                id: '',
-                selectedBox: '',
-                turnCounter: 0,
-                hideElements: false
-            });
-            const resetTime = () => new Promise((resolve => resolve(this.resetTime())));
-            resetTime()
-                .then(() => this.startTime());
-
-            // this.resetTime();
-            // setTimeout(() => this.startTime(), 1);
+            const setPreparing = () => new Promise(resolve => resolve(
+                this.setState({
+                    board: resultForBoard,
+                    initialBoard: resultForInitialBoard,
+                    boxIdState: '',
+                    isGame: true,
+                    level: level,
+                    turns: [],
+                    turnsCash: [],
+                    disabledButtons: false,
+                    disabledUndo: true,
+                    disabledRedo: true,
+                    undoStyle: ButtonStyle.smallButtonDisabled,
+                    redoStyle: ButtonStyle.smallButtonDisabled,
+                    value: '',
+                    id: '',
+                    selectedBox: '',
+                    turnCounter: 0,
+                    hideElements: false
+                })));
+            setPreparing()
+                .then(() => this.setState({isGame: false}))
+                .then(() => this.resetTime())
+                .then(() => this.startTime())
+                .then(() => this.buttonsHandling(false, false));
         }
-        this.buttonsHandling(false, false);
-        setTimeout(() => this.setState({isGame: false}), 10);
     }
 
     takeNumber(id, value) {
@@ -107,17 +105,25 @@ class App extends React.Component {
 
         if (isDefaultBackground && this.state.value.length &&
             this.state.selectedBox.length === 5) {
-            this.state.turnCounter++;
-            let turn = {
-                turnId: this.state.turnCounter,
-                selectedBox: coordinates,
-                value: this.state.value,
-                id: this.state.id,
-                prevValue: this.state.initialBoard[this.state.id]
-            };
-            this.state.turns.unshift(turn);
-            setTimeout(() => this.setState({value: '', selectedBox: '', turnsCash: []}), 1);
-            this.buttonsHandling(true, false);
+            const addTurn = () => new Promise((resolve => resolve(
+                this.state.turnCounter++
+            )));
+            addTurn()
+                .then(() => {
+                    let turn = {
+                        turnId: this.state.turnCounter,
+                        selectedBox: coordinates,
+                        value: this.state.value,
+                        id: this.state.id,
+                        prevValue: this.state.initialBoard[this.state.id]
+                    };
+                    this.state.turns.unshift(turn);
+                })
+                .then(() => this.setState({value: '', selectedBox: '', turnsCash: []}))
+                .then(() => this.buttonsHandling(true, false));
+        } else {
+            this.state.value.length ? this.setState({selectedBox: coordinates}) :
+                this.setState({selectedBox: ''})
         }
     }
 
@@ -128,6 +134,10 @@ class App extends React.Component {
             this.setState({disabledRedo: true, redoStyle: ButtonStyle.smallButtonDisabled});
     }
 
+    refreshBoard = () => new Promise(resolve => resolve(
+        this.setState({board: this.state.board, isGame: true})
+    ));
+
     undoHandling() {
         let item = this.state.turns.shift();
         this.state.turnsCash.unshift(item);
@@ -137,8 +147,8 @@ class App extends React.Component {
             this.buttonsHandling(true, false);
         !this.state.turns.length ? this.buttonsHandling(false, false) : [];
         this.state.board[item.id] = item.prevValue;
-        this.setState({board: this.state.board, isGame: true});
-        setTimeout(() => this.setState({isGame: false}), 10);
+        this.refreshBoard()
+            .then(() => this.setState({isGame: false}));
     }
 
     redoHandling() {
@@ -149,9 +159,9 @@ class App extends React.Component {
             this.state.turnCounter++;
             this.setState({turns: this.state.turns});
             this.state.board[item.id] = item.value;
-            this.setState({board: this.state.board, isGame: true});
-            setTimeout(() => this.setState({isGame: false}), 10);
-            setTimeout(() => !this.state.turnsCash.length ? this.buttonsHandling(true, false) : [])
+            this.refreshBoard()
+                .then(() => this.setState({isGame: false}))
+                .then(() => !this.state.turnsCash.length ? this.buttonsHandling(true, false) : []);
         }
     }
 
@@ -165,20 +175,23 @@ class App extends React.Component {
     }
 
     restartGame() {
-        this.setState({
-            board: Array.from(this.state.initialBoard),
-            isGame: true,
-            turns: [],
-            turnsCash: [],
-            boxIdState: '',
-            value: '',
-            id: '',
-            selectedBox: '',
-            turnCounter: 0
-        });
-        setTimeout(() => this.setState({isGame: false}), 10);
-        this.buttonsHandling(false, false);
-        this.toastRestartGame();
+        const restart = () => new Promise(resolve => resolve(
+            this.setState({
+                board: Array.from(this.state.initialBoard),
+                isGame: true,
+                turns: [],
+                turnsCash: [],
+                boxIdState: '',
+                value: '',
+                id: '',
+                selectedBox: '',
+                turnCounter: 0
+            })
+        ));
+        restart()
+            .then(() => this.setState({isGame: false}))
+            .then(() => this.buttonsHandling(false, false))
+            .then(() => this.toastRestartGame());
     }
 
     checkSolution(solution, isSolve) {
@@ -194,23 +207,27 @@ class App extends React.Component {
             counter === 0 ?
                 toast.success(<SolveModal title="⭐⭐⭐YOU ARE WINNER⭐⭐⭐" info="👌GAME OVER👌"/>,
                     {
-                        autoClose: false,onOpen: () => {
+                        autoClose: false, onOpen: () => {
                             this.disableButtons(true);
-                            this.stopTime();},
+                            this.stopTime();
+                        },
                         onClose: () => {
                             this.disableButtons(false);
                             this.startTime();
-                        }}) :
+                        }
+                    }) :
                 toast.warn(<SolveModal title="⚠️YOUR solution is NOT FINISHED⚠️"
                                        info="Are you sure, you want to end the game?"/>,
                     {
                         autoClose: false, onOpen: () => {
                             this.disableButtons(true);
-                            this.stopTime();},
+                            this.stopTime();
+                        },
                         onClose: () => {
                             this.disableButtons(false);
                             this.startTime();
-                        }})
+                        }
+                    })
         } else {
             check ? this.correctTactics() : this.notCorrectTactics();
         }
@@ -221,40 +238,45 @@ class App extends React.Component {
     }
 
     loadGame() {
-        let board = localStorage.getItem("state");
-        let result = JSON.parse(board);
-        this.setState({
-            initialBoard: result.initialBoard,
-            board: result.board,
-            boxIdState: board.boxIdState,
-            isGame: true,
-            level: result.level,
-            turns: result.turns,
-            turnsCash: result.turnsCash,
-            disabledButtons: result.disabledButtons,
-            disabledUndo: result.disabledUndo,
-            disabledRedo: result.disabledRedo,
-            undoStyle: result.undoStyle,
-            redoStyle: result.redoStyle,
-            value: result.value,
-            id: result.id,
-            selectedBox: result.selectedBox,
-            turnCounter: result.turnCounter,
-            hideElements: result.hideElements,
-            running: result.running,
-            times: result.times
-        });
-        setTimeout(() => this.setState({isGame: false}));
-        this.toastLoadGame();
-        clearInterval(this.interval);
-        this.interval = setInterval(() => {
+        let board = '';
+        let result = '';
+        const load = () => new Promise((resolve => resolve(
+            board = localStorage.getItem("state")
+        )));
+        load()
+            .then(() => result = JSON.parse(board))
+            .then(() => this.setState({
+                initialBoard: result.initialBoard,
+                board: result.board,
+                boxIdState: board.boxIdState,
+                isGame: true,
+                level: result.level,
+                turns: result.turns,
+                turnsCash: result.turnsCash,
+                disabledButtons: result.disabledButtons,
+                disabledUndo: result.disabledUndo,
+                disabledRedo: result.disabledRedo,
+                undoStyle: result.undoStyle,
+                redoStyle: result.redoStyle,
+                value: result.value,
+                id: result.id,
+                selectedBox: result.selectedBox,
+                turnCounter: result.turnCounter,
+                hideElements: result.hideElements,
+                running: result.running,
+                times: result.times
+            }))
+            .then(() => this.setState({isGame: false}))
+            .then(() => this.toastLoadGame())
+            .then(() => clearInterval(this.interval))
+            .then(() => this.interval = setInterval(() => {
 
-            if (this.state.running) {
-                this.setState({
-                    times: this.calculate(this.state.times)
-                })
-            }
-        }, 1000)
+                if (this.state.running) {
+                    this.setState({
+                        times: this.calculate(this.state.times)
+                    })
+                }
+            }, 1000));
     }
 
     saveGame() {
@@ -265,7 +287,7 @@ class App extends React.Component {
     interval = null;
 
     startTime() {
-        console.log("startTime");
+
         if (!this.state.running) {
             this.setState({
                 running: true
@@ -289,7 +311,6 @@ class App extends React.Component {
     }
 
     resetTime() {
-        console.log("resetTime");
         this.setState({
             running: false,
             times: {
@@ -327,27 +348,32 @@ class App extends React.Component {
     }
 
     format() {
-        return `${this.pad0(this.state.times.hours)}:${this.pad0(this.state.times.minutes)}:${this.pad0(this.state.times.seconds)}`;
+        return `${this.pad0(this.state.times.hours)}:${this.pad0(this.state.times.minutes)}:
+        ${this.pad0(this.state.times.seconds)}`;
     }
 
     toastSaveGame = () => toast('You saved game 🚀', {
         type: toast.TYPE.SUCCESS, autoClose: 5000,
         onOpen: () => {
             this.disableButtons(true);
-            this.stopTime();},
+            this.stopTime();
+        },
         onClose: () => {
             this.disableButtons(false);
-            this.startTime();}
+            this.startTime();
+        }
     });
 
     toastLoadGame = () => toast('You loaded game 🚀', {
         type: toast.TYPE.SUCCESS, autoClose: 5000,
         onOpen: () => {
             this.disableButtons(true);
-            this.stopTime();},
+            this.stopTime();
+        },
         onClose: () => {
             this.disableButtons(false);
-            this.startTime();}
+            this.startTime();
+        }
     });
 
     toastRestartGame = () => toast('You restarted the game 😎',
@@ -355,32 +381,38 @@ class App extends React.Component {
             type: toast.TYPE.INFO, autoClose: 5000,
             onOpen: () => {
                 this.disableButtons(true);
-                this.resetTime();},
+                this.resetTime();
+            },
             onClose: () => {
                 this.disableButtons(false);
                 this.startTime();
-            }});
+            }
+        });
 
     correctTactics = () => toast('Your tactics are CORRECT 😀',
         {
             type: toast.TYPE.SUCCESS, autoClose: 5000,
             onOpen: () => {
                 this.disableButtons(true);
-                this.stopTime();},
+                this.stopTime();
+            },
             onClose: () => {
                 this.disableButtons(false);
                 this.startTime();
-            }});
+            }
+        });
     notCorrectTactics = () => toast('Your tactics are NOT CORRECT 😲',
         {
             type: toast.TYPE.ERROR, autoClose: 5000,
             onOpen: () => {
                 this.disableButtons(true);
-                this.stopTime();},
+                this.stopTime();
+            },
             onClose: () => {
                 this.disableButtons(false);
                 this.startTime();
-            }});
+            }
+        });
 
     render() {
         return (

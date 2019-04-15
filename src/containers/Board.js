@@ -35,14 +35,20 @@ class Board extends React.Component {
     }
 
     selectBoxes(id) {
-        this.setState({selectedBox: id, isDefaultBackground: false});
-        setTimeout(() => this.props.setTurn(this.state.isDefaultBackground, this.state.selectedBox), 1);
+        const setState = () => new Promise(resolve => resolve(
+            this.setState({selectedBox: id, isDefaultBackground: false})
+        ));
+        setState()
+            .then(() => this.props.setTurn(this.state.isDefaultBackground, this.state.selectedBox));
     }
 
     resetBackground() {
-        this.setState({isDefaultBackground: true});
-        setTimeout(() => this.props.setTurn(this.state.isDefaultBackground, this.state.selectedBox), 1);
-        setTimeout(() => this.setState({selectedBox: ''}), 5);
+        const setState = () => new Promise(resolve => resolve(
+            this.setState({isDefaultBackground: true})
+        ));
+        setState()
+            .then(() => this.props.setTurn(this.state.isDefaultBackground, this.state.selectedBox))
+            .then(() => this.setState({selectedBox: ''}));
     }
     
     selectBoxesFromAssisntant(id) {
@@ -58,7 +64,6 @@ class Board extends React.Component {
     render() {
         return (
             <div className="board row">
-                {/*{this.numbers}*/}
                 {(this.state.numbers) ? this.numbers : []}
             </div>
         )
