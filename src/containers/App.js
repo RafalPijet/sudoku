@@ -5,7 +5,6 @@ import Coordinates from '../components/Coordinates';
 import Turns from '../containers/Turns';
 import DifficultyModal from '../components/DifficultyLevelModal';
 import SolveModal from '../components/SolveModal';
-import ButtonStyle from '../components/Buttons.css';
 import sudoku from 'sudoku-umd';
 import {ToastContainer, toast} from "react-toastify";
 
@@ -23,8 +22,8 @@ class App extends React.Component {
             disabledButtons: false,
             disabledUndo: true,
             disabledRedo: true,
-            undoStyle: ButtonStyle.smallButtonDisabled,
-            redoStyle: ButtonStyle.smallButtonDisabled,
+            undoStyle: "smallButtonDisabled",
+            redoStyle: "smallButtonDisabled",
             value: '',
             id: '',
             selectedBox: '',
@@ -76,8 +75,8 @@ class App extends React.Component {
                     disabledButtons: false,
                     disabledUndo: true,
                     disabledRedo: true,
-                    undoStyle: ButtonStyle.smallButtonDisabled,
-                    redoStyle: ButtonStyle.smallButtonDisabled,
+                    undoStyle: "smallButtonDisabled",
+                    redoStyle: "smallButtonDisabled",
                     value: '',
                     id: '',
                     selectedBox: '',
@@ -128,10 +127,10 @@ class App extends React.Component {
     }
 
     buttonsHandling(isUndo, isRedo) {
-        isUndo ? this.setState({disabledUndo: false, undoStyle: ButtonStyle.smallButton}) :
-            this.setState({disabledUndo: true, undoStyle: ButtonStyle.smallButtonDisabled});
-        isRedo ? this.setState({disabledRedo: false, redoStyle: ButtonStyle.smallButton}) :
-            this.setState({disabledRedo: true, redoStyle: ButtonStyle.smallButtonDisabled});
+        isUndo ? this.setState({disabledUndo: false, undoStyle: "smallButton"}) :
+            this.setState({disabledUndo: true, undoStyle: "smallButtonDisabled"});
+        isRedo ? this.setState({disabledRedo: false, redoStyle: "smallButton"}) :
+            this.setState({disabledRedo: true, redoStyle: "smallButtonDisabled"});
     }
 
     refreshBoard = () => new Promise(resolve => resolve(

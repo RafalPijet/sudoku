@@ -1,5 +1,4 @@
 import React from 'react';
-import style from './Tile.css';
 
 const generateId = id => {
     let first;
@@ -33,7 +32,7 @@ class Tile extends React.Component {
             id: this.props.id,
             disabled: true,
             boxId: generateId(this.props.id),
-            boxStyle: style.white
+            boxStyle: "whiteTile"
         };
         this.handleChange = this.handleChange.bind(this);
     }
@@ -92,9 +91,9 @@ class Tile extends React.Component {
                     this.state.boxId.includes("8") ||
                     this.state.boxId.includes("9")
                 )) {
-            this.setState({boxStyle: style.grey})
+            this.setState({boxStyle: "greyTile"})
         } else {
-            this.setState({boxStyle: style.white});
+            this.setState({boxStyle: "whiteTile"});
         }
     }
 
@@ -104,7 +103,7 @@ class Tile extends React.Component {
         let section = boxId.substring(4, 5);
 
         if (this.state.boxId.includes(letter) || this.state.boxId.includes(number) || this.state.boxId.includes(section)) {
-            this.setState({boxStyle: style.yellow});
+            this.setState({boxStyle: "yellowTile"});
         }
     }
 

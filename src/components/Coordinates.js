@@ -1,12 +1,11 @@
 import React from 'react';
-import style from '../components/Coordinates.css';
 
 class Coordinates extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             name: this.props.name,
-            style: style.coordinatesDontSelected
+            style: "coordinatesDontSelected"
         }
     }
 
@@ -18,8 +17,8 @@ class Coordinates extends React.Component {
             let isSelected = nextProps.boxIdState.state;
 
             number === this.state.name && isSelected || letter.toUpperCase() === this.state.name && isSelected ?
-                this.setState({style: style.coordinatesSelected}) :
-                this.setState({style: style.coordinatesDontSelected})
+                this.setState({style: "coordinatesSelected"}) :
+                this.setState({style: "coordinatesDontSelected"})
         }
     }
 

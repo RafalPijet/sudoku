@@ -51,6 +51,71 @@ body {
   text-align: center;
 }
 
+.globalButton {
+  font-family: $font-roboto-medium;
+  font-size: $font-size-16;
+  height: 40px;
+  box-shadow: 5px 5px 10px $black;
+  transition-duration: .2s;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  border-radius: 3px;
+}
+
+.smallButton {
+  @extend .globalButton;
+  width: 100px !important;
+  margin: 20px 0 0 0 !important;
+  background-color: #a29bfe !important;
+  color: #fff !important;
+  cursor: pointer !important;
+}
+
+.smallButtonDisabled {
+  @extend .globalButton;
+  width: 100px !important;
+  margin: 20px 0 0 0 !important;
+  background-color: #b2bec3 !important;
+  color: #636e72 !important;
+  cursor: default !important;
+}
+
+.coordinatesDontSelected {
+  color: #000;
+  font-size: 16px;
+  font-weight: normal;
+  text-shadow: none;
+}
+
+.coordinatesSelected {
+  color: #badc58;
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: 5px 5px 10px #000;
+  margin-top: 13px;
+}
+
+
+.whiteTile {
+  width: 61px;
+  height: 61px;
+  background-color: #fff;
+}
+
+.greyTile {
+  width: 61px;
+  height: 61px;
+  background-color: #f5f6fa;
+}
+
+.yellowTile {
+  width: 61px;
+  height: 61px;
+  background-color: #f6e58d;
+}
+
+
 .App {
   background: url("../images/sky.jpeg") center;
   background-size: cover;
@@ -154,21 +219,14 @@ body {
   margin-bottom: 40px;
 
   button {
-    font-family: $font-roboto-medium;
-    font-size: $font-size-16;
+    @extend .globalButton;
     width: 150px;
-    height: 40px;
     margin: 30px 50px 0;
-    box-shadow: 5px 5px 10px $black;
-    transition-duration: .2s;
-    cursor: pointer;
-    outline: none;
-    border: none;
-    border-radius: 3px;
 
     &:first-child {
       background-color: $green;
     }
+
     &:nth-of-type(2) {
       background-color: $blue;
     }
@@ -198,18 +256,13 @@ body {
 .modal-select-difficulty {
 
   button {
+    @extend .globalButton;
     margin: 5px 0;
     width: 80px;
     height: 25px;
     background-color: $grey-title;
     color: $white;
-    border-radius: 3px;
-    border: none;
-    outline: none;
-    cursor: pointer;
     font-size: $font-size-13;
-    box-shadow: 5px 5px 10px $black;
-    transition-duration: .2s;
 
     &:active {
       box-shadow: none;
@@ -239,18 +292,13 @@ body {
 
 .modal-solution {
   button {
+    @extend .globalButton;
     margin: 5px 0;
     width: 280px;
     height: 25px;
     background-color: $grey-title;
     color: $white;
-    border-radius: 3px;
-    border: none;
-    outline: none;
-    cursor: pointer;
     font-size: $font-size-13;
-    box-shadow: 5px 5px 10px $black;
-    transition-duration: .2s;
 
     &:active {
       box-shadow: none;
@@ -273,4 +321,3 @@ body {
 [id*="1"], [id*="2"], [id*="4"], [id*="5"], [id*="7"], [id*="8"] {
   border-right: 1px solid $grey-light;
 }
-
