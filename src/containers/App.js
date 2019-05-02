@@ -1,9 +1,8 @@
 import React from 'react';
 import {hot} from 'react-hot-loader/index';
-import Board from '../containers/Board';
-import Coordinates from '../components/Coordinates';
-import Turns from '../containers/Turns';
-import DifficultyModal from '../components/DifficultyLevelModal';
+import Info from '../containers/Info';
+import Matrix from '../containers/Matrix';
+import ButtonsPanel from '../containers/ButtonsPanel';
 import SolveModal from '../components/SolveModal';
 import sudoku from 'sudoku-umd';
 import {ToastContainer, toast} from "react-toastify";
@@ -337,20 +336,6 @@ class App extends React.Component {
         return result;
     }
 
-    pad0(value) {
-        let result = value.toString();
-
-        if (result.length < 2) {
-            result = `0${result}`;
-        }
-        return result;
-    }
-
-    format() {
-        return `${this.pad0(this.state.times.hours)}:${this.pad0(this.state.times.minutes)}:
-        ${this.pad0(this.state.times.seconds)}`;
-    }
-
     toastSaveGame = () => toast('You saved game 🚀', {
         type: toast.TYPE.SUCCESS, autoClose: 5000,
         onOpen: () => {
@@ -416,82 +401,19 @@ class App extends React.Component {
     render() {
         return (
             <div className="App row col-12">
-                <div className="title row col-3 flex-center flex-content-start">
-                    <h1>SUDOKU</h1>
-                    <h3 className="col-12" hidden={this.state.hideElements}>
-                        {`${this.state.level} (${this.format(this.state.times)})`}
-                    </h3>
-                    <div className="col-10 row">
-                        <h4 className="col-4" hidden={this.state.hideElements}>Turn</h4>
-                        <h4 className="col-4" hidden={this.state.hideElements}>Coordinates</h4>
-                        <h4 className="col-4" hidden={this.state.hideElements}>Value</h4>
-                    </div>
-                    <div className="col-10 row">
-                        <h4 className="show col-4" hidden={this.state.hideElements}>{this.state.turnCounter + 1}</h4>
-                        <h4 className="show col-4" hidden={this.state.hideElements}>{this.state.selectedBox}</h4>
-                        <h4 className="show col-4" hidden={this.state.hideElements}>{this.state.value}</h4>
-                    </div>
-                    <Turns turns={this.state.turns} hidden={this.state.hideElements}/>
-                    <div className="buttons row col-10 flex-between">
-                        <button className={this.state.undoStyle} hidden={this.state.hideElements}
-                                disabled={this.state.disabledUndo} onClick={this.undoHandling.bind(this)}>Undo
-                        </button>
-                        <button className={this.state.redoStyle} hidden={this.state.hideElements}
-                                disabled={this.state.disabledRedo} onClick={this.redoHandling.bind(this)}>Redo
-                        </button>
-                    </div>
-                </div>
-                <div className="row col-6">
-                    <div className="row col-12">
-                        <div className="numbersLine row">
-                            <Coordinates name="1" boxIdState={this.state.boxIdState}/>
-                            <Coordinates name="2" boxIdState={this.state.boxIdState}/>
-                            <Coordinates name="3" boxIdState={this.state.boxIdState}/>
-                            <Coordinates name="4" boxIdState={this.state.boxIdState}/>
-                            <Coordinates name="5" boxIdState={this.state.boxIdState}/>
-                            <Coordinates name="6" boxIdState={this.state.boxIdState}/>
-                            <Coordinates name="7" boxIdState={this.state.boxIdState}/>
-                            <Coordinates name="8" boxIdState={this.state.boxIdState}/>
-                            <Coordinates name="9" boxIdState={this.state.boxIdState}/>
-                        </div>
-                    </div>
-                    <div className="lettersLine row flex-end">
-                        <Coordinates name="A" boxIdState={this.state.boxIdState}/>
-                        <Coordinates name="B" boxIdState={this.state.boxIdState}/>
-                        <Coordinates name="C" boxIdState={this.state.boxIdState}/>
-                        <Coordinates name="D" boxIdState={this.state.boxIdState}/>
-                        <Coordinates name="E" boxIdState={this.state.boxIdState}/>
-                        <Coordinates name="F" boxIdState={this.state.boxIdState}/>
-                        <Coordinates name="G" boxIdState={this.state.boxIdState}/>
-                        <Coordinates name="H" boxIdState={this.state.boxIdState}/>
-                        <Coordinates name="I" boxIdState={this.state.boxIdState}/>
-                    </div>
-                    <Board takeNumber={this.takeNumber.bind(this)} randomNumbers={this.state.board}
-                           takeCoordinates={this.takeCoordinates.bind(this)} isGame={this.state.isGame}
-                           setTurn={this.setTurn.bind(this)}/>
-                </div>
-                <div className="buttons row col-3 flex-center flex-content-end">
-                    <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}
-                            onClick={() => this.checkSolution(this.state.board, false)}>Check
-                    </button>
-                    <button disabled={this.state.disabledButtons} onClick={() => toast.success(<DifficultyModal
-                            title="Select difficulty level" prepareBoard={this.prepareBoard.bind(this)}/>,
-                        {
-                            autoClose: false, onOpen: () => this.disableButtons(true),
-                            onClose: () => this.disableButtons(false)
-                        })}>New Game
-                    </button>
-                    <button disabled={this.state.disabledButtons} onClick={() => this.loadGame()}>Load Game</button>
-                    <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}
-                            onClick={() => this.saveGame()}>Save Game
-                    </button>
-                    <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}
-                            onClick={() => this.checkSolution(this.state.board, true)}>Solve
-                    </button>
-                    <button hidden={this.state.hideElements} disabled={this.state.disabledButtons}
-                            onClick={() => this.restartGame()}>Restart
-                    </button>
-                </div>
+                <Info times={this.state.times} hideElements={this.state.hideElements} level={this.state.level}
+                    turnCounter={this.state.turnCounter} selectedBox={this.state.selectedBox} value={this.state.value}
+                    turns={this.state.turns} undoStyle={this.state.undoStyle} disabledUndo={this.state.disabledUndo}
+                    undoHandling={this.undoHandling.bind(this)} redoStyle={this.state.redoStyle}
+                    disabledRedo={this.state.disabledRedo} redoHandling={this.redoHandling.bind(this)}/>
+                <Matrix boxIdState={this.state.boxIdState} takeNumber={this.takeNumber.bind(this)}
+                    randomNumbers={this.state.board} takeCoordinates={this.takeCoordinates.bind(this)}
+                    isGame={this.state.isGame} setTurn={this.setTurn.bind(this)}/>
+                <ButtonsPanel hideElements={this.state.hideElements} disabledButtons={this.state.disabledButtons}
+                    board={this.state.board} prepareBoard={this.prepareBoard.bind(this)}
+                    disableButtons={this.disableButtons.bind(this)} loadGame={this.loadGame.bind(this)}
+                    saveGame={this.saveGame.bind(this)} restartGame={this.restartGame.bind(this)}
+                    checkSolution={this.checkSolution.bind(this)}/>
                 <ToastContainer/>
             </div>
         )
