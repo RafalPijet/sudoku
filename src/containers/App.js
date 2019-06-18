@@ -4,6 +4,9 @@ import Info from '../containers/Info';
 import Matrix from '../containers/Matrix';
 import ButtonsPanel from '../containers/ButtonsPanel';
 import SolveModal from '../components/SolveModal';
+import ButtonPanelContainer from './ButtonPanelContainer';
+import InfoContainer from './InfoContainer';
+import MatrixContainer from './MatrixContainer';
 import sudoku from 'sudoku-umd';
 import {ToastContainer, toast} from "react-toastify";
 
@@ -34,11 +37,31 @@ class App extends React.Component {
                 minutes: 0,
                 seconds: 0
             }
-        }
+        };
+        this.props.hideElements(true);
+        this.props.disabledButtons(false);
+        this.props.disabledUndo(true);
+        this.props.disabledRedo(true);
+        this.props.setBoard([]);
+        this.props.setInitialBoard([]);
+        this.props.setTurns([]);
+        this.props.setTurnsCash([]);
+        this.props.setUndoStyle("smallButtonDisabled");
+        this.props.setRedoStyle("smallButtonDisabled");
+        this.props.setBoxIdState('');
+        this.props.setIsGame(false);
+        this.props.setLevel('');
+        this.props.setValue('');
+        this.props.setId('');
+        this.props.setSelectedBox('');
+        this.props.setTurnCounter(0);
+        this.props.setRunning(false);
     }
 
     componentDidMount() {
         this.prepareBoard("begin");
+
+        // setTimeout(() => console.log(this.props.boards), 10);
     }
 
     prepareBoard(level) {
@@ -49,6 +72,7 @@ class App extends React.Component {
             for (let i = 0; i < 81; i++) {
                 begin.push('')
             }
+            this.props.setBoard(begin);
             this.setState({board: begin})
         } else {
             const random = Array.from(sudoku.generate(level));
@@ -63,26 +87,46 @@ class App extends React.Component {
                     : resultForInitialBoard.push(item)
             );
             const setPreparing = () => new Promise(resolve => resolve(
-                this.setState({
-                    board: resultForBoard,
-                    initialBoard: resultForInitialBoard,
-                    boxIdState: '',
-                    isGame: true,
-                    level: level,
-                    turns: [],
-                    turnsCash: [],
-                    disabledButtons: false,
-                    disabledUndo: true,
-                    disabledRedo: true,
-                    undoStyle: "smallButtonDisabled",
-                    redoStyle: "smallButtonDisabled",
-                    value: '',
-                    id: '',
-                    selectedBox: '',
-                    turnCounter: 0,
-                    hideElements: false
-                })));
+                this.props.hideElements(false),
+                this.props.disabledButtons(false),
+                this.props.disabledUndo(true),
+                this.props.disabledRedo(true),
+                this.props.setBoard(resultForBoard),
+                this.props.setInitialBoard(resultForInitialBoard),
+                this.props.setIsGame(true),
+                this.props.setLevel(level),
+                this.props.setTurns([]),
+                this.props.setTurnsCash([]),
+                this.props.setUndoStyle("smallButtonDisabled"),
+                this.props.setRedoStyle("smallButtonDisabled"),
+                this.props.setValue(''),
+                this.props.setId(''),
+                this.props.setBoxIdState(''),
+                this.props.setSelectedBox(''),
+                this.props.setTurnCounter(0),
+
+            this.setState({
+                        board: resultForBoard,
+                        initialBoard: resultForInitialBoard,
+                        boxIdState: '',
+                        isGame: true,
+                        level: level,
+                        turns: [],
+                        turnsCash: [],
+                        disabledButtons: false,
+                        disabledUndo: true,
+                        disabledRedo: true,
+                        undoStyle: "smallButtonDisabled",
+                        redoStyle: "smallButtonDisabled",
+                        value: '',
+                        id: '',
+                        selectedBox: '',
+                        turnCounter: 0,
+                        hideElements: false
+                    })
+                ));
             setPreparing()
+                .then(() => this.props.setIsGame(false))
                 .then(() => this.setState({isGame: false}))
                 .then(() => this.resetTime())
                 .then(() => this.startTime())
@@ -91,6 +135,12 @@ class App extends React.Component {
     }
 
     takeNumber(id, value) {
+        let takeBoard = this.props.boards.board;
+        takeBoard.splice(id, 1, value);
+        this.props.setBoard(takeBoard);
+        this.props.setValue(value);
+        this.props.setId(id);
+
         this.state.board.splice(id, 1, value);
         this.setState({value: value, id: id});
     }
@@ -99,8 +149,10 @@ class App extends React.Component {
         let letter = selectedBox.substring(0, 1).toUpperCase();
         let number = selectedBox.substring(2, 3);
         let coordinates = letter + " - " + number;
-        coordinates.length === 5 ? this.setState({selectedBox: coordinates}) : [];
+        coordinates.length === 5 ? this.props.setSelectedBox(coordinates) : [];
 
+        coordinates.length === 5 ? this.setState({selectedBox: coordinates}) : [];
+/*todo*/
         if (isDefaultBackground && this.state.value.length &&
             this.state.selectedBox.length === 5) {
             const addTurn = () => new Promise((resolve => resolve(
@@ -124,8 +176,26 @@ class App extends React.Component {
                 this.setState({selectedBox: ''})
         }
     }
-
+/*todo*/
     buttonsHandling(isUndo, isRedo) {
+
+        if (isUndo) {
+            this.props.disabledUndo(false);
+            this.props.setUndoStyle("smallButton");
+        } else {
+            this.props.disabledUndo(true);
+            this.props.setUndoStyle("smallButtonDisabled");
+        }
+
+        if (isRedo) {
+            this.props.disabledRedo(false);
+            this.props.setRedoStyle("smallButton");
+        } else {
+            this.props.disabledRedo(true);
+            this.props.setRedoStyle("smallButtonDisabled");
+        }
+
+
         isUndo ? this.setState({disabledUndo: false, undoStyle: "smallButton"}) :
             this.setState({disabledUndo: true, undoStyle: "smallButtonDisabled"});
         isRedo ? this.setState({disabledRedo: false, redoStyle: "smallButton"}) :
@@ -133,9 +203,12 @@ class App extends React.Component {
     }
 
     refreshBoard = () => new Promise(resolve => resolve(
+        this.props.setBoard(this.props.boards.board),
+        this.props.setIsGame(true),
+
         this.setState({board: this.state.board, isGame: true})
     ));
-
+/*todo*/
     undoHandling() {
         let item = this.state.turns.shift();
         this.state.turnsCash.unshift(item);
@@ -162,18 +235,29 @@ class App extends React.Component {
                 .then(() => !this.state.turnsCash.length ? this.buttonsHandling(true, false) : []);
         }
     }
-
+/*todo*/
     takeCoordinates(id, state) {
         let boxState = {
             id: id,
             state: state
         };
-        this.setState({boxIdState: boxState});
+        this.props.setBoxIdState(boxState);
 
+        this.setState({boxIdState: boxState});
     }
 
     restartGame() {
         const restart = () => new Promise(resolve => resolve(
+            this.props.setBoard(Array.from(this.props.boards.initialBoard)),
+            this.props.setIsGame(true),
+            this.props.setTurns([]),
+            this.props.setTurnsCash([]),
+            this.props.setValue(''),
+            this.props.setId(''),
+            this.props.setBoxIdState(''),
+            this.props.setSelectedBox(''),
+            this.props.setTurnCounter(0),
+
             this.setState({
                 board: Array.from(this.state.initialBoard),
                 isGame: true,
@@ -187,11 +271,13 @@ class App extends React.Component {
             })
         ));
         restart()
+            .then(() => this.props.setIsGame(false))
+
             .then(() => this.setState({isGame: false}))
             .then(() => this.buttonsHandling(false, false))
             .then(() => this.toastRestartGame());
     }
-
+/*todo*/
     checkSolution(solution, isSolve) {
         const result = [];
         solution.map(item => !item.length ? result.push(item.replace('', '.')) : result.push(item));
@@ -230,9 +316,10 @@ class App extends React.Component {
             check ? this.correctTactics() : this.notCorrectTactics();
         }
     }
-
+/*todo*/
     disableButtons(isReally) {
         isReally ? this.setState({disabledButtons: true}) : this.setState({disabledButtons: false});
+        isReally ? this.props.disabledButtons(true) : this.props.disabledButtons(false);
     }
 
     loadGame() {
@@ -243,10 +330,30 @@ class App extends React.Component {
         )));
         load()
             .then(() => result = JSON.parse(board))
+            .then(() => {
+                this.props.hideElements(result.hideElements);
+                this.props.disabledButtons(result.disabledButtons);
+                this.props.disabledUndo(result.disabledUndo);
+                this.props.disabledRedo(result.disabledRedo);
+                this.props.setBoard(result.board);
+                this.props.setInitialBoard(result.initialBoard);
+                this.props.setTurns(result.turns);
+                this.props.setTurnsCash(result.turnsCash);
+                this.props.setBoxIdState(result.boxIdState);
+                this.props.setIsGame(true);
+                this.props.setLevel(result.level);
+                this.props.setUndoStyle(result.undoStyle);
+                this.props.setRedoStyle(result.redoStyle);
+                this.props.setValue(result.value);
+                this.props.setId(result.id);
+                this.props.setSelectedBox(result.selectedBox);
+                this.props.setTurnCounter(result.turnCounter);
+                this.props.setRunning(result.running);
+            })
             .then(() => this.setState({
                 initialBoard: result.initialBoard,
                 board: result.board,
-                boxIdState: board.boxIdState,
+                boxIdState: board.boxIdState,//???
                 isGame: true,
                 level: result.level,
                 turns: result.turns,
@@ -262,8 +369,10 @@ class App extends React.Component {
                 turnCounter: result.turnCounter,
                 hideElements: result.hideElements,
                 running: result.running,
-                times: result.times
+                times: result.times //!!!
             }))
+            .then(() => this.props.setIsGame(false))
+
             .then(() => this.setState({isGame: false}))
             .then(() => this.toastLoadGame())
             .then(() => clearInterval(this.interval))
@@ -276,7 +385,7 @@ class App extends React.Component {
                 }
             }, 1000));
     }
-
+/*todo*/
     saveGame() {
         localStorage.setItem("state", JSON.stringify(this.state));
         this.toastSaveGame();
@@ -335,7 +444,7 @@ class App extends React.Component {
         }
         return result;
     }
-
+/*todo*/
     toastSaveGame = () => toast('You saved game 🚀', {
         type: toast.TYPE.SUCCESS, autoClose: 5000,
         onOpen: () => {
@@ -401,19 +510,27 @@ class App extends React.Component {
     render() {
         return (
             <div className="App row col-12">
-                <Info times={this.state.times} hideElements={this.state.hideElements} level={this.state.level}
-                    turnCounter={this.state.turnCounter} selectedBox={this.state.selectedBox} value={this.state.value}
-                    turns={this.state.turns} undoStyle={this.state.undoStyle} disabledUndo={this.state.disabledUndo}
-                    undoHandling={this.undoHandling.bind(this)} redoStyle={this.state.redoStyle}
-                    disabledRedo={this.state.disabledRedo} redoHandling={this.redoHandling.bind(this)}/>
-                <Matrix boxIdState={this.state.boxIdState} takeNumber={this.takeNumber.bind(this)}
-                    randomNumbers={this.state.board} takeCoordinates={this.takeCoordinates.bind(this)}
-                    isGame={this.state.isGame} setTurn={this.setTurn.bind(this)}/>
-                <ButtonsPanel hideElements={this.state.hideElements} disabledButtons={this.state.disabledButtons}
-                    board={this.state.board} prepareBoard={this.prepareBoard.bind(this)}
-                    disableButtons={this.disableButtons.bind(this)} loadGame={this.loadGame.bind(this)}
-                    saveGame={this.saveGame.bind(this)} restartGame={this.restartGame.bind(this)}
-                    checkSolution={this.checkSolution.bind(this)}/>
+                {/*<Info times={this.state.times} hideElements={this.state.hideElements} level={this.state.level}*/}
+                {/*    turnCounter={this.state.turnCounter} selectedBox={this.state.selectedBox} value={this.state.value}*/}
+                {/*    turns={this.state.turns} undoStyle={this.state.undoStyle} disabledUndo={this.state.disabledUndo}*/}
+                {/*    undoHandling={this.undoHandling.bind(this)} redoStyle={this.state.redoStyle}*/}
+                {/*    disabledRedo={this.state.disabledRedo} redoHandling={this.redoHandling.bind(this)}/>*/}
+                <InfoContainer times={this.state.times} undoHandling={this.undoHandling.bind(this)}
+                               redoHandling={this.redoHandling.bind(this)}/>
+                {/*<Matrix boxIdState={this.state.boxIdState} takeNumber={this.takeNumber.bind(this)}*/}
+                {/*    randomNumbers={this.state.board} takeCoordinates={this.takeCoordinates.bind(this)}*/}
+                {/*    isGame={this.state.isGame} setTurn={this.setTurn.bind(this)}/>*/}
+                <MatrixContainer takeNumber={this.takeNumber.bind(this)} takeCoordinates={this.takeCoordinates.bind(this)}
+                                 setTurn={this.setTurn.bind(this)}/>
+                {/*<ButtonsPanel hideElements={this.state.hideElements} disabledButtons={this.state.disabledButtons}*/}
+                {/*    board={this.state.board} prepareBoard={this.prepareBoard.bind(this)}*/}
+                {/*    disableButtons={this.disableButtons.bind(this)} loadGame={this.loadGame.bind(this)}*/}
+                {/*    saveGame={this.saveGame.bind(this)} restartGame={this.restartGame.bind(this)}*/}
+                {/*    checkSolution={this.checkSolution.bind(this)}/>*/}
+                <ButtonPanelContainer prepareBoard={this.prepareBoard.bind(this)} loadGame={this.loadGame.bind(this)}
+                                      saveGame={this.saveGame.bind(this)} disableButtons={this.disableButtons.bind(this)}
+                                      restartGame={this.restartGame.bind(this)}
+                                      checkSolution={this.checkSolution.bind(this)}/>
                 <ToastContainer/>
             </div>
         )

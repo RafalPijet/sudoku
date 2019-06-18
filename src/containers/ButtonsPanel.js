@@ -2,8 +2,9 @@ import React from 'react';
 import {toast} from "react-toastify";
 import DifficultyModal from "../components/DifficultyLevelModal";
 
-const ButtonsPanel = props =>
-
+const ButtonsPanel = props => {
+    // console.log(props);
+return (
     <div className="buttons row col-3 flex-center flex-content-end">
         <button hidden={props.hideElements} disabled={props.disabledButtons}
                 onClick={() => props.checkSolution(props.board, false)}>Check
@@ -26,5 +27,5 @@ const ButtonsPanel = props =>
                 onClick={() => props.restartGame()}>Restart
         </button>
     </div>
-
+)};
 export default ButtonsPanel;
