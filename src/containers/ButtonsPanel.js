@@ -3,7 +3,6 @@ import {toast} from "react-toastify";
 import DifficultyModal from "../components/DifficultyLevelModal";
 
 const ButtonsPanel = props => {
-    // console.log(props);
 return (
     <div className="buttons row col-3 flex-center flex-content-end">
         <button hidden={props.hideElements} disabled={props.disabledButtons}

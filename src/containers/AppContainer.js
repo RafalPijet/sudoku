@@ -2,7 +2,8 @@ import {connect} from 'react-redux';
 import App from './App';
 import {hideElements, disabledButtons, setBoard, setInitialBoard, setTurns, setTurnsCash,
         disabledUndo, disabledRedo, setUndoStyle, setRedoStyle, setBoxIdState, setIsGame,
-        setLevel, setValue, setId, setSelectedBox, setTurnCounter, setRunning} from "../actions";
+        setLevel, setValue, setId, setSelectedBox, setTurnCounter, turnUpCounter, turnDownCounter,
+        setRunning, addTurn, removeTurn, addTurnCash, removeTurnCash} from "../actions";
 
 const mapDispatchToProps = dispatch => ({
     hideElements: isHide => dispatch(hideElements(isHide)),
@@ -12,7 +13,11 @@ const mapDispatchToProps = dispatch => ({
     setBoard: board => dispatch(setBoard(board)),
     setInitialBoard: board => dispatch(setInitialBoard(board)),
     setTurns: board => dispatch(setTurns(board)),
+    addTurn: turn => dispatch(addTurn(turn)),
+    removeTurn: () => dispatch(removeTurn()),
     setTurnsCash: board => dispatch(setTurnsCash(board)),
+    addTurnCash: turn => dispatch(addTurnCash(turn)),
+    removeTurnCash: () => dispatch(removeTurnCash()),
     setUndoStyle: style => dispatch(setUndoStyle(style)),
     setRedoStyle: style => dispatch(setRedoStyle(style)),
     setBoxIdState: value => dispatch(setBoxIdState(value)),
@@ -22,6 +27,8 @@ const mapDispatchToProps = dispatch => ({
     setId: id => dispatch(setId(id)),
     setSelectedBox: box => dispatch(setSelectedBox(box)),
     setTurnCounter: value => dispatch(setTurnCounter(value)),
+    turnUpCounter: () => dispatch(turnUpCounter()),
+    turnDownCounter: () => dispatch(turnDownCounter()),
     setRunning: isRunning => dispatch(setRunning(isRunning))
 });
 

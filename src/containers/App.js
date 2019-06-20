@@ -1,8 +1,5 @@
 import React from 'react';
 import {hot} from 'react-hot-loader/index';
-import Info from '../containers/Info';
-import Matrix from '../containers/Matrix';
-import ButtonsPanel from '../containers/ButtonsPanel';
 import SolveModal from '../components/SolveModal';
 import ButtonPanelContainer from './ButtonPanelContainer';
 import InfoContainer from './InfoContainer';
@@ -14,24 +11,6 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            initialBoard: '',
-            board: [],
-            boxIdState: '',
-            isGame: false,
-            level: '',
-            turns: [],
-            turnsCash: [],
-            disabledButtons: false,
-            disabledUndo: true,
-            disabledRedo: true,
-            undoStyle: "smallButtonDisabled",
-            redoStyle: "smallButtonDisabled",
-            value: '',
-            id: '',
-            selectedBox: '',
-            turnCounter: 0,
-            hideElements: true,
-            running: false,
             times: {
                 hours: 0,
                 minutes: 0,
@@ -60,8 +39,6 @@ class App extends React.Component {
 
     componentDidMount() {
         this.prepareBoard("begin");
-
-        // setTimeout(() => console.log(this.props.boards), 10);
     }
 
     prepareBoard(level) {
@@ -104,30 +81,10 @@ class App extends React.Component {
                 this.props.setBoxIdState(''),
                 this.props.setSelectedBox(''),
                 this.props.setTurnCounter(0),
-
-            this.setState({
-                        board: resultForBoard,
-                        initialBoard: resultForInitialBoard,
-                        boxIdState: '',
-                        isGame: true,
-                        level: level,
-                        turns: [],
-                        turnsCash: [],
-                        disabledButtons: false,
-                        disabledUndo: true,
-                        disabledRedo: true,
-                        undoStyle: "smallButtonDisabled",
-                        redoStyle: "smallButtonDisabled",
-                        value: '',
-                        id: '',
-                        selectedBox: '',
-                        turnCounter: 0,
-                        hideElements: false
-                    })
-                ));
+            ));
             setPreparing()
                 .then(() => this.props.setIsGame(false))
-                .then(() => this.setState({isGame: false}))
+                // .then(() => this.setState({isGame: false}))
                 .then(() => this.resetTime())
                 .then(() => this.startTime())
                 .then(() => this.buttonsHandling(false, false));
@@ -140,9 +97,6 @@ class App extends React.Component {
         this.props.setBoard(takeBoard);
         this.props.setValue(value);
         this.props.setId(id);
-
-        this.state.board.splice(id, 1, value);
-        this.setState({value: value, id: id});
     }
 
     setTurn(isDefaultBackground, selectedBox) {
@@ -151,32 +105,34 @@ class App extends React.Component {
         let coordinates = letter + " - " + number;
         coordinates.length === 5 ? this.props.setSelectedBox(coordinates) : [];
 
-        coordinates.length === 5 ? this.setState({selectedBox: coordinates}) : [];
-/*todo*/
-        if (isDefaultBackground && this.state.value.length &&
-            this.state.selectedBox.length === 5) {
+        if (isDefaultBackground && this.props.values.value.length &&
+            this.props.values.selectedBox.length === 5) {
             const addTurn = () => new Promise((resolve => resolve(
-                this.state.turnCounter++
+                this.props.turnUpCounter()
             )));
             addTurn()
                 .then(() => {
                     let turn = {
-                        turnId: this.state.turnCounter,
+                        turnId: this.props.values.turnCounter,
                         selectedBox: coordinates,
-                        value: this.state.value,
-                        id: this.state.id,
-                        prevValue: this.state.initialBoard[this.state.id]
+                        value: this.props.values.value,
+                        id: this.props.values.id,
+                        prevValue: this.props.boards.initialBoard[this.props.values.id]
                     };
-                    this.state.turns.unshift(turn);
+                    this.props.addTurn(turn);
                 })
-                .then(() => this.setState({value: '', selectedBox: '', turnsCash: []}))
+                .then(() => {
+                    this.props.setValue('');
+                    this.props.setSelectedBox('');
+                    this.props.setTurnsCash([]);
+                })
                 .then(() => this.buttonsHandling(true, false));
         } else {
-            this.state.value.length ? this.setState({selectedBox: coordinates}) :
-                this.setState({selectedBox: ''})
+            this.props.values.value.length ? this.props.setSelectedBox(coordinates) :
+                this.props.setSelectedBox('')
         }
     }
-/*todo*/
+
     buttonsHandling(isUndo, isRedo) {
 
         if (isUndo) {
@@ -194,56 +150,54 @@ class App extends React.Component {
             this.props.disabledRedo(true);
             this.props.setRedoStyle("smallButtonDisabled");
         }
-
-
-        isUndo ? this.setState({disabledUndo: false, undoStyle: "smallButton"}) :
-            this.setState({disabledUndo: true, undoStyle: "smallButtonDisabled"});
-        isRedo ? this.setState({disabledRedo: false, redoStyle: "smallButton"}) :
-            this.setState({disabledRedo: true, redoStyle: "smallButtonDisabled"});
     }
 
     refreshBoard = () => new Promise(resolve => resolve(
         this.props.setBoard(this.props.boards.board),
         this.props.setIsGame(true),
-
-        this.setState({board: this.state.board, isGame: true})
     ));
-/*todo*/
+
+
     undoHandling() {
-        let item = this.state.turns.shift();
-        this.state.turnsCash.unshift(item);
-        this.state.turnCounter--;
-        this.setState({turns: this.state.turns});
-        this.state.turnsCash.length ? this.buttonsHandling(true, true) :
+        let item = this.props.boards.turns[0];
+        this.props.removeTurn();
+        this.props.addTurnCash(item);
+        this.props.turnDownCounter();
+        this.props.setTurns(this.props.boards.turns);
+        this.props.boards.turnsCash.length ? this.buttonsHandling(true, true) :
             this.buttonsHandling(true, false);
-        !this.state.turns.length ? this.buttonsHandling(false, false) : [];
-        this.state.board[item.id] = item.prevValue;
+        !this.props.boards.turns.length ? this.buttonsHandling(false, false) : [];
+        let actualBoard = this.props.boards.board;
+        actualBoard[item.id] = item.prevValue;
+        this.props.setBoard(actualBoard);
         this.refreshBoard()
-            .then(() => this.setState({isGame: false}));
+            .then(() => this.props.setIsGame(false));
     }
 
     redoHandling() {
 
-        if (this.state.turnsCash.length) {
-            let item = this.state.turnsCash.shift();
-            this.state.turns.unshift(item);
-            this.state.turnCounter++;
-            this.setState({turns: this.state.turns});
-            this.state.board[item.id] = item.value;
+        if (this.props.boards.turnsCash.length) {
+            let item = this.props.boards.turnsCash[0];
+            this.props.removeTurnCash();
+            this.props.addTurn(item);
+            this.props.turnUpCounter();
+            this.props.setTurns(this.props.boards.turns);
+            let actualBoard = this.props.boards.board;
+            actualBoard[item.id] = item.value;
+            this.props.setBoard(actualBoard);
             this.refreshBoard()
-                .then(() => this.setState({isGame: false}))
-                .then(() => !this.state.turnsCash.length ? this.buttonsHandling(true, false) : []);
+                .then(() => this.props.setIsGame(false))
+                .then(() => !this.props.boards.turnsCash.length ?
+                    this.buttonsHandling(true, false) : []);
         }
     }
-/*todo*/
+
     takeCoordinates(id, state) {
         let boxState = {
             id: id,
             state: state
         };
         this.props.setBoxIdState(boxState);
-
-        this.setState({boxIdState: boxState});
     }
 
     restartGame() {
@@ -257,27 +211,15 @@ class App extends React.Component {
             this.props.setBoxIdState(''),
             this.props.setSelectedBox(''),
             this.props.setTurnCounter(0),
-
-            this.setState({
-                board: Array.from(this.state.initialBoard),
-                isGame: true,
-                turns: [],
-                turnsCash: [],
-                boxIdState: '',
-                value: '',
-                id: '',
-                selectedBox: '',
-                turnCounter: 0
-            })
         ));
         restart()
             .then(() => this.props.setIsGame(false))
 
-            .then(() => this.setState({isGame: false}))
+            // .then(() => this.setState({isGame: false}))
             .then(() => this.buttonsHandling(false, false))
             .then(() => this.toastRestartGame());
     }
-/*todo*/
+
     checkSolution(solution, isSolve) {
         const result = [];
         solution.map(item => !item.length ? result.push(item.replace('', '.')) : result.push(item));
@@ -285,8 +227,8 @@ class App extends React.Component {
 
         if (isSolve) {
             let counter = 0;
-            for (let i = 0; i < this.state.board.length; i++) {
-                this.state.board[i] === '' ? counter++ : [];
+            for (let i = 0; i < this.props.boards.board.length; i++) {
+                this.props.boards.board[i] === '' ? counter++ : [];
             }
             counter === 0 ?
                 toast.success(<SolveModal title="⭐⭐⭐YOU ARE WINNER⭐⭐⭐" info="👌GAME OVER👌"/>,
@@ -316,78 +258,62 @@ class App extends React.Component {
             check ? this.correctTactics() : this.notCorrectTactics();
         }
     }
-/*todo*/
+
     disableButtons(isReally) {
-        isReally ? this.setState({disabledButtons: true}) : this.setState({disabledButtons: false});
         isReally ? this.props.disabledButtons(true) : this.props.disabledButtons(false);
     }
 
     loadGame() {
-        let board = '';
+        let store = '';
         let result = '';
         const load = () => new Promise((resolve => resolve(
-            board = localStorage.getItem("state")
+            store = localStorage.getItem("store")
         )));
         load()
-            .then(() => result = JSON.parse(board))
+            .then(() => result = JSON.parse(store))
             .then(() => {
-                this.props.hideElements(result.hideElements);
-                this.props.disabledButtons(result.disabledButtons);
-                this.props.disabledUndo(result.disabledUndo);
-                this.props.disabledRedo(result.disabledRedo);
-                this.props.setBoard(result.board);
-                this.props.setInitialBoard(result.initialBoard);
-                this.props.setTurns(result.turns);
-                this.props.setTurnsCash(result.turnsCash);
-                this.props.setBoxIdState(result.boxIdState);
+                this.props.hideElements(result.elements.hideElements);
+                this.props.disabledButtons(result.elements.disabledButtons);
+                this.props.disabledUndo(result.elements.disabledUndo);
+                this.props.disabledRedo(result.elements.disabledRedo);
+                this.props.setBoard(result.boards.board);
+                this.props.setInitialBoard(result.boards.initialBoard);
+                this.props.setTurns(result.boards.turns);
+                this.props.setTurnsCash(result.boards.turnsCash);
+                this.props.setBoxIdState(result.values.boxIdState);
                 this.props.setIsGame(true);
-                this.props.setLevel(result.level);
-                this.props.setUndoStyle(result.undoStyle);
-                this.props.setRedoStyle(result.redoStyle);
-                this.props.setValue(result.value);
-                this.props.setId(result.id);
-                this.props.setSelectedBox(result.selectedBox);
-                this.props.setTurnCounter(result.turnCounter);
-                this.props.setRunning(result.running);
+                this.props.setLevel(result.values.level);
+                this.props.setUndoStyle(result.styles.undoStyle);
+                this.props.setRedoStyle(result.styles.redoStyle);
+                this.props.setValue(result.values.value);
+                this.props.setId(result.values.id);
+                this.props.setSelectedBox(result.values.selectedBox);
+                this.props.setTurnCounter(result.values.turnCounter);
+                this.props.setRunning(result.values.running);
+                this.setState({times: result.times});
             })
-            .then(() => this.setState({
-                initialBoard: result.initialBoard,
-                board: result.board,
-                boxIdState: board.boxIdState,//???
-                isGame: true,
-                level: result.level,
-                turns: result.turns,
-                turnsCash: result.turnsCash,
-                disabledButtons: result.disabledButtons,
-                disabledUndo: result.disabledUndo,
-                disabledRedo: result.disabledRedo,
-                undoStyle: result.undoStyle,
-                redoStyle: result.redoStyle,
-                value: result.value,
-                id: result.id,
-                selectedBox: result.selectedBox,
-                turnCounter: result.turnCounter,
-                hideElements: result.hideElements,
-                running: result.running,
-                times: result.times //!!!
-            }))
             .then(() => this.props.setIsGame(false))
-
-            .then(() => this.setState({isGame: false}))
             .then(() => this.toastLoadGame())
             .then(() => clearInterval(this.interval))
             .then(() => this.interval = setInterval(() => {
 
-                if (this.state.running) {
+                if (this.props.values.running) {
                     this.setState({
                         times: this.calculate(this.state.times)
                     })
                 }
             }, 1000));
     }
-/*todo*/
+
     saveGame() {
-        localStorage.setItem("state", JSON.stringify(this.state));
+        let storage = {
+            boards: this.props.boards,
+            elements: this.props.elements,
+            styles: this.props.styles,
+            values: this.props.values,
+            times: this.state.times
+        };
+        localStorage.setItem("store", JSON.stringify(storage));
         this.toastSaveGame();
     }
 
@@ -395,13 +321,12 @@ class App extends React.Component {
 
     startTime() {
 
-        if (!this.state.running) {
-            this.setState({
-                running: true
-            });
+        if (!this.props.values.running) {
+            this.props.setRunning(true);
             this.interval = setInterval(() => {
 
-                if (this.state.running) {
+                if (this.props.values.running) {
+
                     this.setState({
                         times: this.calculate(this.state.times)
                     })
@@ -411,15 +336,13 @@ class App extends React.Component {
     }
 
     stopTime() {
-        this.setState({
-            running: false
-        });
+        this.props.setRunning(false);
         clearInterval(this.interval);
     }
 
     resetTime() {
+        this.props.setRunning(false);
         this.setState({
-            running: false,
             times: {
                 hours: 0,
                 minutes: 0,
@@ -444,7 +367,7 @@ class App extends React.Component {
         }
         return result;
     }
-/*todo*/
+
     toastSaveGame = () => toast('You saved game 🚀', {
         type: toast.TYPE.SUCCESS, autoClose: 5000,
         onOpen: () => {
@@ -510,25 +433,14 @@ class App extends React.Component {
     render() {
         return (
             <div className="App row col-12">
-                {/*<Info times={this.state.times} hideElements={this.state.hideElements} level={this.state.level}*/}
-                {/*    turnCounter={this.state.turnCounter} selectedBox={this.state.selectedBox} value={this.state.value}*/}
-                {/*    turns={this.state.turns} undoStyle={this.state.undoStyle} disabledUndo={this.state.disabledUndo}*/}
-                {/*    undoHandling={this.undoHandling.bind(this)} redoStyle={this.state.redoStyle}*/}
-                {/*    disabledRedo={this.state.disabledRedo} redoHandling={this.redoHandling.bind(this)}/>*/}
                 <InfoContainer times={this.state.times} undoHandling={this.undoHandling.bind(this)}
                                redoHandling={this.redoHandling.bind(this)}/>
-                {/*<Matrix boxIdState={this.state.boxIdState} takeNumber={this.takeNumber.bind(this)}*/}
-                {/*    randomNumbers={this.state.board} takeCoordinates={this.takeCoordinates.bind(this)}*/}
-                {/*    isGame={this.state.isGame} setTurn={this.setTurn.bind(this)}/>*/}
-                <MatrixContainer takeNumber={this.takeNumber.bind(this)} takeCoordinates={this.takeCoordinates.bind(this)}
+                <MatrixContainer takeNumber={this.takeNumber.bind(this)}
+                                 takeCoordinates={this.takeCoordinates.bind(this)}
                                  setTurn={this.setTurn.bind(this)}/>
-                {/*<ButtonsPanel hideElements={this.state.hideElements} disabledButtons={this.state.disabledButtons}*/}
-                {/*    board={this.state.board} prepareBoard={this.prepareBoard.bind(this)}*/}
-                {/*    disableButtons={this.disableButtons.bind(this)} loadGame={this.loadGame.bind(this)}*/}
-                {/*    saveGame={this.saveGame.bind(this)} restartGame={this.restartGame.bind(this)}*/}
-                {/*    checkSolution={this.checkSolution.bind(this)}/>*/}
                 <ButtonPanelContainer prepareBoard={this.prepareBoard.bind(this)} loadGame={this.loadGame.bind(this)}
-                                      saveGame={this.saveGame.bind(this)} disableButtons={this.disableButtons.bind(this)}
+                                      saveGame={this.saveGame.bind(this)}
+                                      disableButtons={this.disableButtons.bind(this)}
                                       restartGame={this.restartGame.bind(this)}
                                       checkSolution={this.checkSolution.bind(this)}/>
                 <ToastContainer/>

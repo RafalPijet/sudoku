@@ -1,5 +1,5 @@
 import {SET_BOX_ID_STATE, IS_GAME, SET_LEVEL, SET_VALUE, SET_ID, SET_SELECTED_BOX,
-    SET_TURN_COUNTER, SET_RUNNING} from "./actions";
+    SET_TURN_COUNTER, TURN_UP_COUNTER, TURN_DOWN_COUNTER, SET_RUNNING} from "./actions";
 
 const values = (state = {}, action) => {
     switch (action.type) {
@@ -50,6 +50,20 @@ const values = (state = {}, action) => {
                 {
                     ...state,
                     turnCounter: action.value
+                }
+            );
+        case TURN_UP_COUNTER:
+            return (
+                {
+                    ...state,
+                    turnCounter: state.turnCounter + 1
+                }
+            );
+        case TURN_DOWN_COUNTER:
+            return (
+                {
+                    ...state,
+                    turnCounter: state.turnCounter - 1
                 }
             );
         case SET_RUNNING:

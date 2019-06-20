@@ -29,10 +29,10 @@ const elements = (state = {}, action) => {
                     ...state,
                     disabledRedo: action.disabledRedo
                 }
-            )
+            );
         default:
             return state;
     }
-}
+};
 
 export default elements;

@@ -3,7 +3,11 @@ export const DISABLED_BUTTONS = "DISABLED_BUTTONS";
 export const SET_BOARD = "SET_BOARD";
 export const SET_INITIAL_BOARD = "SET_INITIAL_BOARD";
 export const SET_TURNS = "SET_TURNS";
+export const ADD_TURN = "ADD_TURN";
+export const REMOVE_TURN = "REMOVE_TURN";
 export const SET_TURNS_CASH = "SET_TURNS_CASH";
+export const ADD_TURN_CASH = "ADD_TURN_CASH";
+export const REMOVE_TURN_CASH = "REMOVE_TURN_CASH";
 export const DISABLED_UNDO = "DISABLED_UNDO";
 export const DISABLED_REDO = "DISABLED_REDO";
 export const SET_UNDO_STYLE = "SET_UNDO_STYLE";
@@ -15,6 +19,8 @@ export const SET_VALUE = "SET_VALUE";
 export const SET_ID = "SET_ID";
 export const SET_SELECTED_BOX = "SET_SELECTED_BOX";
 export const SET_TURN_COUNTER = "SET_TURN_COUNTER";
+export const TURN_UP_COUNTER = "TURN_UP_COUNTER";
+export const TURN_DOWN_COUNTER = "TURN_DOWN_COUNTER";
 export const SET_RUNNING = "SET_RUNNING";
 
 export const hideElements = isHide => {
@@ -66,10 +72,36 @@ export const setTurns = board => {
     }
 };
 
+export const addTurn = turn => {
+    return {
+        type: ADD_TURN,
+        turn
+    }
+};
+
+export const removeTurn = () => {
+    return {
+        type: REMOVE_TURN
+    }
+};
+
 export const setTurnsCash = board => {
     return {
         type: SET_TURNS_CASH,
         board
+    }
+};
+
+export const addTurnCash = turnCash => {
+    return {
+        type: ADD_TURN_CASH,
+        turnCash
+    }
+};
+
+export const removeTurnCash = () => {
+    return {
+        type: REMOVE_TURN_CASH
     }
 };
 
@@ -133,6 +165,18 @@ export const setTurnCounter = value => {
     return {
         type: SET_TURN_COUNTER,
         value
+    }
+};
+
+export const turnUpCounter = () => {
+    return {
+        type: TURN_UP_COUNTER
+    }
+};
+
+export const turnDownCounter = () => {
+    return {
+        type: TURN_DOWN_COUNTER
     }
 };
 
