@@ -1,9 +1,11 @@
 import {connect} from 'react-redux';
 import App from './App';
-import {hideElements, disabledButtons, setBoard, setInitialBoard, setTurns, setTurnsCash,
-        disabledUndo, disabledRedo, setUndoStyle, setRedoStyle, setBoxIdState, setIsGame,
-        setLevel, setValue, setId, setSelectedBox, setTurnCounter, turnUpCounter, turnDownCounter,
-        setRunning, addTurn, removeTurn, addTurnCash, removeTurnCash} from "../actions";
+import { hideElements, disabledButtons, disabledUndo, disabledRedo } from "../actions/elementsActions";
+import { setBoard, setInitialBoard, setTurns, addTurn, removeTurn, setTurnsCash, addTurnCash, removeTurnCash }
+        from "../actions/boardsActions";
+import { setUndoStyle, setRedoStyle } from "../actions/stylesActions";
+import { setBoxIdState, setIsGame, setLevel, setValue, setId, setSelectedBox, setTurnCounter, turnUpCounter,
+        turnDownCounter, setRunning } from "../actions/valuesActions";
 
 const mapDispatchToProps = dispatch => ({
     hideElements: isHide => dispatch(hideElements(isHide)),
