@@ -217,7 +217,7 @@ class App extends React.Component {
 
             // .then(() => this.setState({isGame: false}))
             .then(() => this.buttonsHandling(false, false))
-            .then(() => this.toastRestartGame());
+            .then(() => this.toastCreator("You restarted the game 😎", "info", false));
     }
 
     checkSolution(solution, isSolve) {
@@ -255,7 +255,9 @@ class App extends React.Component {
                         }
                     })
         } else {
-            check ? this.correctTactics() : this.notCorrectTactics();
+            // check ? this.correctTactics() : this.notCorrectTactics();
+            check ? this.toastCreator("Your tactics are CORRECT 😀", "success", true) :
+                this.toastCreator("Your tactics are NOT CORRECT 😲", "error", true);
         }
     }
 
@@ -293,7 +295,7 @@ class App extends React.Component {
                 this.setState({times: result.times});
             })
             .then(() => this.props.setIsGame(false))
-            .then(() => this.toastLoadGame())
+            .then(() => this.toastCreator("You loaded game 🚀", "success", true))
             .then(() => clearInterval(this.interval))
             .then(() => this.interval = setInterval(() => {
 
@@ -314,7 +316,7 @@ class App extends React.Component {
             times: this.state.times
         };
         localStorage.setItem("store", JSON.stringify(storage));
-        this.toastSaveGame();
+        this.toastCreator("You saved game 🚀", "success", true);
     }
 
     interval = null;
@@ -368,67 +370,18 @@ class App extends React.Component {
         return result;
     }
 
-    toastSaveGame = () => toast('You saved game 🚀', {
-        type: toast.TYPE.SUCCESS, autoClose: 5000,
+    toastCreator = (content, type, isStopTime) => (
+        toast(content, { type , autoClose: 5000,
         onOpen: () => {
             this.disableButtons(true);
-            this.stopTime();
+            isStopTime ? this.stopTime() : this.resetTime();
         },
         onClose: () => {
             this.disableButtons(false);
             this.startTime();
-        }
-    });
 
-    toastLoadGame = () => toast('You loaded game 🚀', {
-        type: toast.TYPE.SUCCESS, autoClose: 5000,
-        onOpen: () => {
-            this.disableButtons(true);
-            this.stopTime();
-        },
-        onClose: () => {
-            this.disableButtons(false);
-            this.startTime();
-        }
-    });
-
-    toastRestartGame = () => toast('You restarted the game 😎',
-        {
-            type: toast.TYPE.INFO, autoClose: 5000,
-            onOpen: () => {
-                this.disableButtons(true);
-                this.resetTime();
-            },
-            onClose: () => {
-                this.disableButtons(false);
-                this.startTime();
-            }
-        });
-
-    correctTactics = () => toast('Your tactics are CORRECT 😀',
-        {
-            type: toast.TYPE.SUCCESS, autoClose: 5000,
-            onOpen: () => {
-                this.disableButtons(true);
-                this.stopTime();
-            },
-            onClose: () => {
-                this.disableButtons(false);
-                this.startTime();
-            }
-        });
-    notCorrectTactics = () => toast('Your tactics are NOT CORRECT 😲',
-        {
-            type: toast.TYPE.ERROR, autoClose: 5000,
-            onOpen: () => {
-                this.disableButtons(true);
-                this.stopTime();
-            },
-            onClose: () => {
-                this.disableButtons(false);
-                this.startTime();
-            }
-        });
+        }})
+    );
 
     render() {
         return (
